@@ -1,0 +1,384 @@
+.horizontal-menu-1 {
+	width: 1000px;
+	height: 43px;
+	background: #FDCA00; /* Keltainen tausta */
+	color: #232323;
+	border: 1px solid #232323; /* Musta reunus */
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	font-family: "Helvetica";
+	font-weight: 400;
+	font-size: 14px;
+	padding: 0;
+}
+
+.horizontal-menu-1 button {
+	flex: 1; /* Jakaa tilan tasaisesti */
+    width: 317px;
+	background: #FDCA00; /* Keltainen tausta */
+	color: #232323; /* Tekstin väri */
+	border: 2px solid #232323; /* Musta reunus jokaiselle napille */
+	font-size: 14px;
+	padding: 13px;
+	cursor: pointer;
+	border-radius: 1; /* Suorat kulmat, jos haluat samannäköiset */
+}
+
+.horizontal-menu-1 button:hover {
+	background-color: #E5B800; /* Tummempi keltainen hover-efekti */
+}
+
+
+.movies-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .movie-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    width: 200px;
+    text-align: center;
+  }
+  
+  .movie-card img {
+    width: 100%;
+    height: auto;
+  }
+  
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 20px;
+  }
+  
+  .review-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  .review-card h2 {
+    font-size: 1.5em;
+  }
+  
+  .review-card p {
+    font-size: 1.1em;
+  }
+  
+  .review-card strong {
+    font-weight: bold;
+  }
+  
+  .showtimes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 20px;
+  }
+  
+  .showtime-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  .showtime-card h2 {
+    font-size: 1.5em;
+  }
+  
+  .showtime-card ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .showtime-card li {
+    font-size: 1.1em;
+    padding: 5px 0;
+  }
+  
+  /* Hakupalkin tyylit */
+.search-container {
+    margin-top: 20px; /* Lisää yläreunaan tilaa */
+    display: flex;
+    justify-content: center;
+  }
+  
+  .search-1 {
+    width: 200px; /* Määrää hakupalkin leveyden */
+    height: 35px; /* Määrää hakupalkin korkeuden */
+    background-color: #ffffff; /* Valkoinen tausta */
+    color: #333; /* Tumma teksti */
+    border: 1px solid #232323; /* Musta reunus */
+    border-radius: 32px; /* Pyöristetyt kulmat */
+    padding-left: 15px; /* Sisennys vasemmalta */
+    font-family: "Helvetica", sans-serif; /* Helvetica fontti */
+    font-size: 14px;
+  }
+  
+  .search-1:focus {
+    outline: none; /* Poistaa oletuskehykset, kun hakupalkki on valittuna */
+    border-color: #007BFF; /* Sininen reuna fokuksessa */
+  }
+  body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f9f9f9;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-box {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 300px;
+}
+
+.avatar {
+  margin-bottom: 15px;
+}
+
+.avatar-icon {
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+.register-link {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.register-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f9f9f9;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-box {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 300px;
+}
+
+.avatar {
+  margin-bottom: 15px;
+}
+
+.avatar-icon {
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+.register-link {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.register-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f9f9f9;
+}
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.register-box {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 350px;
+}
+
+.avatar {
+  margin-bottom: 15px;
+}
+
+.avatar-icon {
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.form-group-row {
+  display: flex;
+  gap: 10px;
+}
+
+.register-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #ffc107;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.register-button:hover {
+  background-color: #e0a800;
+}
+
+.login-link {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.login-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
