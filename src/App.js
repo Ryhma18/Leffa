@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import './styles.css';
 
-
 // Import Movies-komponentti pages-kansiosta
 import Movies from './pages/Movies';
 import Login from './pages/Login';
@@ -11,8 +10,6 @@ import Profile from './pages/Profile';
 import Reviews from './pages/Reviews';
 import Showtimes from './pages/Showtimes';
 import Register from './pages/Register';
-
-
 
 const Home = () => <h1>Etusivu</h1>;
 
@@ -53,7 +50,7 @@ function App() {
         {/* Reittien määrittely */}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/movies" element={<Movies />} />
+          <Route path="/movies" element={<Movies searchQuery={searchQuery} />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/showtimes" element={<Showtimes />} />
           <Route path="/profile" element={<Profile />} />
