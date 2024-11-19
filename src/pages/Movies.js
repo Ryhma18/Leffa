@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './styles.css'; // Tyylitiedosto komponentille
+import './styles.css'; 
 
 const Movies = ({ searchQuery }) => {
   const [movies, setMovies] = useState([]);
-  const apiKey = '23c2cd5829a1d7db4e98fee32fc45565'; // Käytetään annettua API-avainta
+  const apiKey = '23c2cd5829a1d7db4e98fee32fc45565'; 
 
   useEffect(() => {
-    // Funktio hakutulosten hakemiseen
+   
     const fetchMovies = async () => {
       try {
         let url = `https://api.themoviedb.org/3/trending/movie/day?api_key=${apiKey}`;

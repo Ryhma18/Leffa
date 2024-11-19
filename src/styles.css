@@ -293,3 +293,62 @@ h2 {
 .register-link a:hover {
   text-decoration: underline;
 }
+
+
+/* Navigointivalikko */
+.horizontal-menu-1 button {
+  margin: 5px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.horizontal-menu-1 button:hover {
+  background-color: #ddd;
+}
+
+/* Dropdown-valikot */
+.dropdown-container {
+  display: flex;
+  gap: 10px;
+  margin: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 200px;
+}
+
+/* Hakupainike */
+.search-button {
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #ddd;
+}
+
+/* Hakupalkki */
+.search-container {
+  margin-top: 10px;
+}
+
+.search-1 {
+  padding: 8px;
+  width: 250px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
