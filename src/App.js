@@ -15,36 +15,48 @@ const Home = () => <h1>Etusivu</h1>;
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
   };
 
   return (
     <Router>
       <div className="App">
         <header className="App-header">
-          {/* Ylätason navigointivalikko */}
-          <div className="horizontal-menu-1">
-            <Link to="/">
+          {/* Hamburger Icon */}
+          <div className="hamburger-menu" onClick={toggleMenu}>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+          </div>
+
+          {/* Navigation Bar */}
+          <nav className={`horizontal-menu-1 ${menuOpen ? "open" : ""}`}>
+            <Link to="/" onClick={() => setMenuOpen(false)}>
               <button>Etusivu</button>
             </Link>
-            <Link to="/movies">
+            <Link to="/movies" onClick={() => setMenuOpen(false)}>
               <button>Elokuvat</button>
             </Link>
-            <Link to="/reviews">
+            <Link to="/reviews" onClick={() => setMenuOpen(false)}>
               <button>Arvostelut</button>
             </Link>
-            <Link to="/showtimes">
+            <Link to="/showtimes" onClick={() => setMenuOpen(false)}>
               <button>Näytösajat</button>
             </Link>
-            <Link to="/profile">
+            <Link to="/profile" onClick={() => setMenuOpen(false)}>
               <button>Profiili</button>
             </Link>
-            <Link to="/login">
+            <Link to="/login" onClick={() => setMenuOpen(false)}>
               <button>Kirjaudu Sisään</button>
             </Link>
-          </div>
+          </nav>
 
           {/* Hakupalkki */}
           <div className="search-container">

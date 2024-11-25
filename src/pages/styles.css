@@ -1,34 +1,87 @@
+.App-header {
+  background: #FDCA00;
+  height: 35px;
+  width: 100%;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
 .horizontal-menu-1 {
-	width: 1000px;
-	height: 43px;
+	width: 100%;
+  max-width: 100%;
+	height: auto;
 	background: #FDCA00; /* Keltainen tausta */
 	color: #232323;
 	border: 1px solid #232323; /* Musta reunus */
 	display: flex;
-	justify-content: space-around;
+	justify-content: space-between;
 	align-items: center;
 	font-family: "Helvetica";
 	font-weight: 400;
 	font-size: 14px;
 	padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .horizontal-menu-1 button {
-	flex: 1; /* Jakaa tilan tasaisesti */
-    width: 317px;
+	flex: 1 1 0; /* Jakaa tilan tasaisesti */
+  margin: 0 5px;
 	background: #FDCA00; /* Keltainen tausta */
 	color: #232323; /* Tekstin väri */
 	border: 2px solid #232323; /* Musta reunus jokaiselle napille */
 	font-size: 14px;
-	padding: 13px;
+	padding: 10px;
 	cursor: pointer;
-	border-radius: 1; /* Suorat kulmat, jos haluat samannäköiset */
+	border-radius: 0;
+  text-align: center;
+  min-width: 50px;
 }
 
 .horizontal-menu-1 button:hover {
 	background-color: #E5B800; /* Tummempi keltainen hover-efekti */
 }
 
+/* Hamburger Icon */
+.hamburger-menu {
+	display: none; /* Hidden by default */
+	flex-direction: column;
+	cursor: pointer;
+	margin-right: 10px;
+}
+
+.hamburger-menu .bar {
+	width: 25px;
+	height: 3px;
+	background-color: #232323;
+	margin: 4px 0;
+}
+
+
+@media (max-width: 1990px) {
+	.hamburger-menu {
+		display: flex;
+	}
+
+	/* Navigation Menu Behavior */
+	.horizontal-menu-1 {
+		flex-direction: column; /* Stack items vertically */
+		max-height: 0; /* Collapsed by default */
+		overflow: hidden; /* Hide content */
+	}
+
+	.horizontal-menu-1.open {
+		max-height: 500px; /* Expand to show menu */
+	}
+
+	.horizontal-menu-1 button {
+		font-size: 12px;
+		padding: 8px;
+		margin: 5px 0; /* Adjust spacing between buttons */
+		width: 100%; /* Full width for buttons */
+	}
+}
 
 .movies-list {
     display: flex;
