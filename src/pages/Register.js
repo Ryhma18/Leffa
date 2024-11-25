@@ -22,7 +22,7 @@ const Register = () => {
   }
   
   const handlesubmit = async(event) => {
-    event.preventDefault();
+    
     try{
       const response = await axios.post(url + 'create',post);
       console.log(response.data)
