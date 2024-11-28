@@ -1,45 +1,59 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import "./styles.css";
 import axios from "axios";
 
 const url = 'http://localhost:3001/'
 
 const Register = () => {
-  const [post,setPost] = useState({
-    sähköposti:'',
+  const [formData, setFormData] = useState({
     etunimi:'',
     sukunimi:'',
     salasana:'',
+    sähköposti:'',
+    käyttäjänimi:'',
     syntymäpäivä:'',
-    käyttäjänimi:''
-  })
 
- 
+  });
+
+const [showPopup, setShowPopup] = useState(false);
+const [popupMessage, setPopupMessage] = useState("");
+const [message, setMessage] = useState("");
   
-  const handleInput = (event) => {
-    setPost({...post, [event.target.name]:event.target.value})
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
 
-  }
+  };
   
   const handlesubmit = async(event) => {
-    
-    try{
-      const response = await axios.post(url + 'create',post);
-      console.log(response.data)
-      setPost({
-        sähköposti:'',
-        etunimi:'',
-        sukunimi:'',
-        salasana:'',
-        syntymäpäivä:'',
-        käyttäjänimi:''
-      })
-    
+    event.preventDefault(); // Prevent form reload
 
-    }catch(error){
-      console.log(error)
+
+    try{
+      const response = await axios.post("http://localhost:3001/create", formData);
+      if (response.status === 201) {
+        setPopupMessage("Account created successfully!");
+        setShowPopup(true);
+        setFormData({
+            etunimi: "",
+            sukunimi: "",
+            salasana: "",
+            sähköposti: "",
+            käyttäjänimi: "",
+            syntymäpäivä: "",
+        });
+    
+      }
+    } catch (error) {
+      console.error("Käyttäjän luonti epäonnistui:", error);
+      setPopupMessage('Käyttäjän luonti epäonnistui. Yritä uudelleen.');
+      setShowPopup(true);
     }
-  }
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+  };
   
   return (
     <div className="register-container">
@@ -56,46 +70,46 @@ const Register = () => {
           <div className="form-group">
             <label htmlFor="email">Sähköposti*</label>
             <input type="email" id="email" placeholder="@ Sähköposti" name="sähköposti"required
-              value={post.sähköposti}
-              onChange={handleInput} 
+              value={formData.sähköposti}
+              onChange={handleInputChange} 
             />
           </div>
           <div className="form-group-row">
             <div className="form-group">
               <label htmlFor="firstName">Etunimi*</label>
               <input type="text" id="firstName" placeholder="Etunimi" name="etunimi"required 
-                value={post.etunimi}
-                onChange={handleInput} 
+                value={formData.etunimi}
+                onChange={handleInputChange} 
               />
             </div>
             <div className="form-group">
               <label htmlFor="lastName">Sukunimi*</label>
               <input type="text" id="lastName" placeholder="Sukunimi" name="sukunimi"required 
-                value={post.sukunimi}
-                onChange={handleInput} 
+                value={formData.sukunimi}
+                onChange={handleInputChange} 
               />
             </div>
           </div>
           <div className="form-group">
             <label htmlFor="password">Salasana</label>
             <input type="password" id="password" placeholder="Salasana" name="salasana"required 
-              value={post.salasana}
-              onChange={handleInput} 
+              value={formData.salasana}
+              onChange={handleInputChange} 
             />
           </div>
           
           <div className="form-group">
             <label htmlFor="birthDate">Syntymäaika</label>
             <input type="date" id="birthDate" name="syntymäpäivä"required 
-              value={post.syntymäpäivä}
-              onChange={handleInput} 
+              value={formData.syntymäpäivä}
+              onChange={handleInputChange} 
             />
           </div>
           <div className="form-group">
             <label htmlFor="username">Käyttäjänimi</label>
             <input type="text" id="username" placeholder="Käyttäjänimi"name="käyttäjänimi" required
-              value={post.käyttäjä}
-              onChange={handleInput} 
+              value={formData.käyttäjä}
+              onChange={handleInputChange} 
              />
           </div>
           <button type="submit" className="register-button">
@@ -106,6 +120,16 @@ const Register = () => {
           <p>Onko sinulla jo käyttäjätili?</p>
           <a href="/login">Kirjaudu sisään</a>
         </div>
+          {/* Popup Window */}
+        {showPopup && (
+          <div className="popup">
+            <div className="popup-content">
+              <p>{popupMessage}</p>
+              <button onClick={closePopup}>Close</button>
+            </div>
+          </div>
+        )}
+        
       </div>
     </div>
   );
