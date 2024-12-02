@@ -38,34 +38,28 @@ const Review = () => {
   }
   
   return (
+    
     <div className="register-container">
       <div className="register-box">
-        <div className="avatar">
-          <img
-            src="https://via.placeholder.com/80"
-            alt="Avatar"
-            className="avatar-icon"
-          />
-        </div>
-        <h2>Käyttäjän luonti</h2>
+        <h2>Arvostelu</h2>
         <form onSubmit={handlesubmit}>
           <div className="form-group">
-            <label htmlFor="email">Elokuva*</label>
-            <input type="email" id="email" placeholder="Elokuva" name="elokuva"required
+            <label htmlFor="elokuva">Elokuva</label>
+            <input type="text" id="elokuva" placeholder="Elokuva" name="elokuva"required
               value={post.elokuva}
               onChange={handleInput} 
             />
           </div>
           <div className="form-group-row">
             <div className="form-group">
-              <label htmlFor="firstName">Pisteet*</label>
-              <input type="text" id="pisteet" placeholder="pisteet" name="pisteet"required 
+              <label htmlFor="firstName">Pisteet</label>
+              <input type="text" id="pisteet" placeholder="pisteet 1-5" name="pisteet"required 
                 value={post.pisteet}
                 onChange={handleInput} 
               />
             </div>
             <div className="form-group">
-              <label htmlFor="lastName">Kuvaus*</label>
+              <label htmlFor="lastName">Kuvaus</label>
               <input type="text" id="kuvaus" placeholder="Kuvaus" name="kuvaus"required 
                 value={post.kuvaus}
                 onChange={handleInput} 
@@ -87,9 +81,11 @@ const Review = () => {
              />
           </div>
           <button type="submit" className="register-button">
-            Luo käyttäjä
+            Lisää arvostelu
           </button>
           </form>
+          <br></br>
+          <a href="/reviews">Katso arvosteluita</a>
       </div>
     </div>
   );
