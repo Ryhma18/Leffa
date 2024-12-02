@@ -1,44 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const url = 'http://localhost:3001/review'
 
 const Reviews = () => {
-  const reviews = [
-    {
-      id: 1,
-      movieTitle: "Elokuva 1",
-      reviewText: "Tämä elokuva oli todella hyvä! Nautin siitä kovasti.",
-      rating: 4, // Arvio 1-5
-      user: "Matti"
-    },
-    {
-      id: 2,
-      movieTitle: "Elokuva 2",
-      reviewText: "Ei ollut ihan odotusten mukainen, mutta viihdyttävä kuitenkin.",
-      rating: 3,
-      user: "Liisa"
-    },
-    {
-      id: 3,
-      movieTitle: "Elokuva 3",
-      reviewText: "Fantastinen elokuva! Erinomaiset näyttelijäsuoritukset.",
-      rating: 5,
-      user: "Pekka"
-    }
-  ];
+  const [review,SetReview] = useState ([])
+
+  useEffect (() => {
+    axios.get(url)
+    .then(response => {
+      SetReview(response.data)
+    }).catch(error => {
+      alert(error.response.data.error ? error.response.data.error : error)
+    })
+  }, [])
+
+  
+  
 
   return (
     <div>
       <h1>Arvostelut</h1>
+      <a href="/review">Tee arvostelu</a>
       <div className="reviews-list">
-        {reviews.map((review) => (
-          <div key={review.id} className="review-card">
-            <h2>{review.movieTitle}</h2>
-            <p><strong>Arvostelu:</strong> {review.reviewText}</p>
-            <p><strong>Arvio:</strong> {review.rating} / 5</p>
-            <p><strong>Käyttäjä:</strong> {review.user}</p>
-          </div>
-        ))}
+        <ul>
+          {
+            review.map((item)=> (
+              <li className='review-card '>
+                <div className='review-card h2'>Elokuva: {item.elokuva}</div>
+                
+                <div className='review-card h2'>Pisteet: {item.pisteet}</div>
+                
+                <div className='review-card h2'>Kuvaus: {item.kuvaus}</div>
+                
+                <div className='review-card h2'>Käyttäjänimi: {item.käyttäjänimi}</div>
+                
+                <div className='review-card h2'>Luomispäivä: {item.luomispäivä}</div>
+                
+              </li>
+            ))
+          }
+         
+        </ul>
+
+
       </div>
-    </div>
+      </div>
+    
   );
 };
 
