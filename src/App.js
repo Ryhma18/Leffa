@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import Reviews from "./pages/Reviews";
 import Showtimes from "./pages/Showtimes"; 
 import Register from "./pages/Register";
+import Review from "./pages/Review";
 
 const Home = () => <h1>Etusivu</h1>;
 
@@ -68,6 +69,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/review" element={<Review />} />
         </Routes>
       </div>
     </Router>
