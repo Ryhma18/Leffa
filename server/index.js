@@ -168,3 +168,20 @@ app.get('/profile', authenticateToken, async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+// User deletion route
+app.delete('/delete-account', authenticateToken, async (req, res) => {
+    try {
+        // Poista käyttäjä tietokannasta käyttäjän ID:n perusteella
+        const result = await pool.query('DELETE FROM käyttäjä WHERE id = $1 RETURNING *', [req.user.id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).send({ message: "User not found or already deleted." });
+        }
+
+        res.status(200).send({ message: "Account deleted successfully." });
+    } catch (error) {
+        console.error("Error deleting user:", error.stack);
+        res.status(500).send({ message: "Internal server error." });
+    }
+});
