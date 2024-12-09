@@ -7,10 +7,9 @@ const Profile = () => {
     const [showPopup, setShowPopup] = useState(false);
 
     const closePopup = () => {
-      setShowPopup(false);
-      window.location.href = "/login"; // Redirect to login
+        setShowPopup(false);
+        window.location.href = "/login"; // Redirect to login
     };
-
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -22,8 +21,8 @@ const Profile = () => {
             }
 
             try {
-              console.log("Fetching profile...")  
-              const response = await axios.get("http://localhost:3001/profile", {
+                console.log("Fetching profile...");
+                const response = await axios.get("http://localhost:3001/profile", {
                     headers: {
                         Authorization: `Bearer ${token}`, // Attach token
                     },
@@ -31,7 +30,7 @@ const Profile = () => {
                 console.log("Profile data:", response.data);
                 setProfile(response.data);
             } catch (error) {
-                console.error("Error fetching profile:",error.response?.data || error.message);
+                console.error("Error fetching profile:", error.response?.data || error.message);
                 localStorage.removeItem("token"); // Clear invalid token
                 window.location.href = "/login"; // Redirect to login
                 setShowPopup(true);
@@ -81,15 +80,15 @@ const Profile = () => {
       };
 
     return (
-      <div className="profile-container">
-          {showPopup && (
-              <div className="popup">
-                  <div className="popup-content">
-                      <p>You need to log in to access the profile page.</p>
-                      <button onClick={closePopup}>Go to Login</button>
-                  </div>
-              </div>
-          )}
+        <div className="profile-container">
+            {showPopup && (
+                <div className="popup">
+                    <div className="popup-content">
+                        <p>You need to log in to access the profile page.</p>
+                        <button onClick={closePopup}>Go to Login</button>
+                    </div>
+                </div>
+            )}
 
           {!showPopup && profile && (
               <>
