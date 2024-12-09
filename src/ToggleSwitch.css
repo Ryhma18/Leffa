@@ -1,0 +1,79 @@
+/* Toggle-napin perusmuoto */
+.toggle-switch {
+    position: fixed;
+    top: 55px;
+    right: 20px;
+    width: 60px;
+    height: 30px;
+    background-color: #ddd;
+    border-radius: 30px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    padding: 3px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .toggle-switch-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #ddd;
+    border-radius: 30px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .toggle-switch-circle {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+  }
+  
+  .toggle-switch-inner.on {
+    background-color: #333; /* Dark mode */
+  }
+  
+  .toggle-switch-circle.on {
+    transform: translateX(30px); /* Siirtää ympyrän oikealle dark mode -tilassa */
+  }
+  
+  .toggle-switch-inner.off {
+    background-color: #ddd; /* Light mode */
+  }
+  
+  .toggle-switch-circle.off {
+    transform: translateX(0); /* Siirtää ympyrän vasemmalle light mode -tilassa */
+  }
+  
+  .icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  body.dark-mode {
+    background-color: #333; /* Tumman teeman taustaväri */
+    color: white;
+  }
+  
+  /* Lisätyylit iconille */
+  .icon {
+    font-size: 18px;
+    color: #333;
+  }
+  
+  /* Aurinko ja kuu ikoneille */
+  .icon .fa-sun {
+    color: yellow;
+  }
+  
+  .icon .fa-moon {
+    color: white;
+  }
+  
