@@ -559,7 +559,7 @@ button:hover {
 .logout-button {
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #f44336; /* Red button */
+  background-color: #1a0af1; /* Red button */
   color: white;
   border: none;
   border-radius: 5px;
@@ -568,7 +568,7 @@ button:hover {
 }
 
 .logout-button:hover {
-  background-color: #d32f2f; /* Darker red on hover */
+  background-color: #3ef805; /* Darker red on hover */
 }
 
 .search-type {
@@ -714,3 +714,28 @@ body {
   outline: none;
 }
 
+.error-text {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.valid-text {
+  color: rgb(6, 184, 6);
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.delete-button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: darkred;
+}

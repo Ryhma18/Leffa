@@ -12,11 +12,13 @@ const Login = () => {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    console.log("Submitting formData:", formData);
 
     try {
       const response = await axios.post("http://localhost:3001/login", {

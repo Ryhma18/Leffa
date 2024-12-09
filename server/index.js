@@ -4,7 +4,8 @@ import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import pkg from 'pg';
-import { generateToken, verifyToken } from './utility/jwt.js';
+import { verifyToken } from './utility/jwt.js';
+
 
 const { Pool } = pkg;
 const port = 3001;
@@ -70,12 +71,18 @@ app.post('/create', async (req, res) => {
     }
 
     try {
-        const hashedPassword = await bcrypt.hash(salasana, 10);
+
+        
         const result = await pool.query(
-            'INSERT INTO käyttäjä (etunimi, sukunimi, salasana, sähköposti, käyttäjänimi, syntymäpäivä) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-            [etunimi, sukunimi, hashedPassword, sähköposti, käyttäjänimi, syntymäpäivä]
+            'INSERT INTO käyttäjä (etunimi, sukunimi, salasana, sähköposti, käyttäjänimi, syntymäpäivä) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [etunimi, sukunimi, salasana, sähköposti, käyttäjänimi, syntymäpäivä]
         );
-        res.status(201).send({ success: true, userId: result.rows[0].id });
+        res.status(201).json({
+        id: result.rows[0].id,
+        etunimi: result.rows[0].etunimi,
+        sähköposti: result.rows[0].sähköposti,
+        käyttäjänimi: result.rows[0].käyttäjänimi,     
+        });
     } catch (error) {
         console.error('Error inserting into database:', error.stack);
         res.status(500).send({ error: 'Internal server error' });
@@ -87,37 +94,38 @@ app.post('/login', async (req, res) => {
     const { käyttäjänimi, salasana } = req.body;
 
     if (!käyttäjänimi || !salasana) {
-        return res.status(400).send({ success: false, message: 'Missing username or password' });
+        return res.status(400).send({ error: 'Missing username or password' });
     }
 
     try {
         const result = await pool.query(
-            'SELECT * FROM käyttäjä WHERE käyttäjänimi = $1',
+            'SELECT * FROM käyttäjä WHERE LOWER(käyttäjänimi) = LOWER($1)',
             [käyttäjänimi]
         );
 
         if (result.rows.length === 0) {
-            return res.status(401).send({ success: false, message: 'Invalid username or password' });
+            return res.status(401).send({ error: 'Invalid username or password' });
         }
 
         const user = result.rows[0];
-        const isPasswordValid = await bcrypt.compare(salasana, user.salasana); // Compare hashed password
 
-        if (!isPasswordValid) {
-            return res.status(401).send({ success: false, message: 'Invalid username or password' });
+        const isPasswordMatch = await(salasana.trim, user.salasana); // Compare hashed password
+
+        if (!isPasswordMatch) {
+            return res.status(401).send({ error: 'Invalid username or password' });
         }
 
         // Generate a token using JWT
-        const token = generateToken({ id: user.id, käyttäjänimi: user.käyttäjänimi });
+        const token = jwt.sign(
+            { id: user.id, käyttäjänimi: user.käyttäjänimi },
+            "your_secret_key",
+            { expiresIn: "1h" }
+        );
 
-        res.status(200).send({
-            success: true,
-            message: 'Login successful',
-            token,
-        });
+        res.status(200).json({ token });
     } catch (error) {
         console.error('Error during login:', error.stack);
-        res.status(500).send({ success: false, message: 'Internal server error' });
+        res.status(500).send({ error: 'Internal server error' });
     }
 });
 
@@ -164,7 +172,69 @@ app.get('/profile', authenticateToken, async (req, res) => {
     }
 });
 
+
+app.get('/account', async (req, res) => {
+    const pool = openDb();
+
+    // Get the token from the Authorization header
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        // Verify the token
+        const decoded = verifyToken(token);
+
+        // Fetch the user details from the database
+        const result = await pool.query('SELECT * FROM käyttäjä WHERE id = $1', [decoded.id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const user = result.rows[0];
+        res.status(200).json({
+            id: user.id,
+            käyttäjänimi: user.käyttäjänimi,
+            sähköposti: user.sähköposti,
+            etunimi: user.etunimi,
+            sukunimi: user.sukunimi,
+        });
+    } catch (error) {
+        console.error('Error fetching user:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.delete("/delete", async (req, res) => {
+
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(401).json({ error: "Unauthorized. No token provided." });
+    }
+
+    try {
+        const decoded = verifyToken(token); // Decode the token to get the user's ID
+
+        const result = await pool.query(
+            "DELETE FROM käyttäjä WHERE id = $1 RETURNING *",
+            [decoded.id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "User not found." });
+        }
+
+        res.status(200).json({ message: "User account deleted successfully." });
+    } catch (error) {
+        console.error("Error deleting user:", error.message);
+        res.status(500).json({ error: "Internal server error." });
+    }
+});
+
 // Start server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+ 

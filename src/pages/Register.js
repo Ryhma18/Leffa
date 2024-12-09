@@ -18,21 +18,45 @@ const Register = () => {
 const [showPopup, setShowPopup] = useState(false);
 const [popupMessage, setPopupMessage] = useState("");
 const [message, setMessage] = useState("");
+const [passwordStatus, setPasswordStatus] = useState({
+  message: "Salasanan on oltava vähintään 8 merkkiä, joista yksi on oltava iso kirjain ja yksi numero.",
+  isValid: false,
+});
+
+const validatePassword = (password) => {
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+  const isValid = passwordRegex.test(password);
+  setPasswordStatus({
+    message: isValid ? "Salasana täyttää kriteerit." : "Salasanan on oltava vähintään 8 merkkiä, joista yksi on oltava iso kirjain ja yksi numero.",
+    isValid: isValid,
+  });
+  return isValid;
+};
   
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
 
   };
+
+  const handlePasswordChange = (e) => {
+    const password = e.target.value;
+    setFormData({ ...formData, salasana: password });
+    validatePassword(password);
+};
   
   const handlesubmit = async(event) => {
     event.preventDefault(); // Prevent form reload
+    if (!passwordStatus.isValid) {
+      alert("Korjaa virheet ennen lomakkeen lähettämistä.");
+      return;
+  }
 
 
     try{
       const response = await axios.post("http://localhost:3001/create", formData);
       if (response.status === 201) {
-        setPopupMessage("Account created successfully!");
+        setPopupMessage("Käyttäjän luonti onnistui!");
         setShowPopup(true);
         setFormData({
             etunimi: "",
@@ -94,8 +118,11 @@ const [message, setMessage] = useState("");
             <label htmlFor="password">Salasana</label>
             <input type="password" id="password" placeholder="Salasana" name="salasana"required 
               value={formData.salasana}
-              onChange={handleInputChange} 
+              onChange={handlePasswordChange} 
             />
+            <p className={passwordStatus.isValid ? "valid-text" : "error-text"}>
+          {passwordStatus.message}
+            </p>
           </div>
           
           <div className="form-group">

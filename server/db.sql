@@ -18,9 +18,16 @@ create table arvostelu (
 );
 
 
-create table ryhmä (
+create table ryhmät (
     id serial PRIMARY key,
     nimi VARCHAR(50) not null,
     kuvaus VARCHAR(50) not null,
     luomispäivä date not null
+);
+
+CREATE TABLE ryhmän_jäsenet (
+    id SERIAL PRIMARY KEY,
+    ryhmä_id INT NOT NULL REFERENCES ryhmät(id) ON DELETE CASCADE,
+    käyttäjä_id INT NOT NULL REFERENCES käyttäjä(id) ON DELETE CASCADE,
+    liittynyt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

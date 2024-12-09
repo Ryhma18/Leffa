@@ -41,6 +41,45 @@ const Profile = () => {
         fetchProfile();
     }, []);
 
+    const handleLogout = () => {
+        localStorage.removeItem("token"); // Clear the token
+        window.location.href = "/login"; // Redirect to login page
+      };
+      
+      const handleDeleteAccount = async () => {
+          const token = localStorage.getItem('token');
+      
+          if (!token) {
+              alert('Tokenia ei löydy, ole hyvä ja kirjaudu sisään uudelleen');
+              window.location.href = "/login";
+              return;
+          }
+      
+          const confirmDelete = window.confirm('Oletko varma että haluat poistaa käyttäjän? Poistamista ei voi kumota.');
+      
+          if (!confirmDelete) {
+              return;
+          }
+      
+          try {
+            console.log("Sending delete request with token:", token);
+              const response = await axios.delete('http://localhost:3001/delete', {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Send token for authorization
+                },
+              });
+      
+              if (response.status === 200) {
+                  alert('Your account has been deleted.');
+                  localStorage.clear(); // Clear stored user data
+                  window.location.href = '/register'; // Redirect to registration or home page
+              }
+          } catch (error) {
+              console.error('Error deleting account:', error.response?.data || error.message);
+              alert('Failed to delete account. Please try again.');
+          }
+      };
+
     return (
       <div className="profile-container">
           {showPopup && (
@@ -62,6 +101,8 @@ const Profile = () => {
                       localStorage.removeItem("token");
                       window.location.href = "/login";
                   }}>Log Out</button>
+                  <button onClick={handleDeleteAccount} className="delete-button">
+                    Delete Account</button>
               </>
           )}
 
@@ -70,9 +111,6 @@ const Profile = () => {
   );
 };
 
-const handleLogout = () => {
-  localStorage.removeItem("token"); // Clear the token
-  window.location.href = "/login"; // Redirect to login page
-};
+
 
 export default Profile;
