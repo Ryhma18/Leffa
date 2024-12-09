@@ -1,131 +1,78 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-function Profile() {
-  const [profile, setProfile] = useState({
-    etunimi: "",
-    sukunimi: "",
-    sähköposti: "",
-    käyttäjänimi: "",
-    syntymäpäivä: "",
-  });
+const Profile = () => {
+    const [profile, setProfile] = useState(null);
+    const [error, setError] = useState("");
+    const [showPopup, setShowPopup] = useState(false);
 
-  const [editMode, setEditMode] = useState(false);
+    const closePopup = () => {
+      setShowPopup(false);
+      window.location.href = "/login"; // Redirect to login
+    };
 
-  // Fetch profile data from the server on component mount
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const response = await axios.get("/api/profile"); // Adjust the endpoint
-        setProfile(response.data);
-      } catch (error) {
-        console.error("Error fetching profile data:", error);
-      }
-    }
-    fetchProfile();
-  }, []);
 
-  // Handle input changes in edit mode
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setProfile((prevProfile) => ({
-      ...prevProfile,
-      [name]: value,
-    }));
-  };
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const token = localStorage.getItem("token"); // Get token
 
-  // Save updated profile data
-  const handleSave = async () => {
-    try {
-      await axios.put("/api/profile", profile); // Adjust the endpoint
-      setEditMode(false);
-      alert("Profile updated successfully!");
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
-    }
-  };
+            if (!token) {
+                setShowPopup(true);
+                return;
+            }
 
-  return (
-    <div className="profile">
-      <h1>Profile</h1>
-      <div className="profile-info">
-        <div>
-          <label>First Name:</label>
-          {editMode ? (
-            <input
-              type="text"
-              name="etunimi"
-              value={profile.etunimi}
-              onChange={handleChange}
-            />
-          ) : (
-            <p>{profile.etunimi}</p>
+            try {
+              console.log("Fetching profile...")  
+              const response = await axios.get("http://localhost:3001/profile", {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Attach token
+                    },
+                });
+                console.log("Profile data:", response.data);
+                setProfile(response.data);
+            } catch (error) {
+                console.error("Error fetching profile:",error.response?.data || error.message);
+                localStorage.removeItem("token"); // Clear invalid token
+                window.location.href = "/login"; // Redirect to login
+                setShowPopup(true);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
+    return (
+      <div className="profile-container">
+          {showPopup && (
+              <div className="popup">
+                  <div className="popup-content">
+                      <p>You need to log in to access the profile page.</p>
+                      <button onClick={closePopup}>Go to Login</button>
+                  </div>
+              </div>
           )}
-        </div>
-        <div>
-          <label>Last Name:</label>
-          {editMode ? (
-            <input
-              type="text"
-              name="sukunimi"
-              value={profile.sukunimi}
-              onChange={handleChange}
-            />
-          ) : (
-            <p>{profile.sukunimi}</p>
+
+          {!showPopup && profile && (
+              <>
+                  <h1>Welcome, {profile.käyttäjänimi}!</h1>
+                  <p>Email: {profile.sähköposti}</p>
+                  <p>First Name: {profile.etunimi}</p>
+                  <p>Last Name: {profile.sukunimi}</p>
+                  <button className="logout-button" onClick={() => {
+                      localStorage.removeItem("token");
+                      window.location.href = "/login";
+                  }}>Log Out</button>
+              </>
           )}
-        </div>
-        <div>
-          <label>Email:</label>
-          {editMode ? (
-            <input
-              type="email"
-              name="sähköposti"
-              value={profile.sähköposti}
-              onChange={handleChange}
-            />
-          ) : (
-            <p>{profile.sähköposti}</p>
-          )}
-        </div>
-        <div>
-          <label>Username:</label>
-          {editMode ? (
-            <input
-              type="text"
-              name="käyttäjänimi"
-              value={profile.käyttäjänimi}
-              onChange={handleChange}
-            />
-          ) : (
-            <p>{profile.käyttäjänimi}</p>
-          )}
-        </div>
-        <div>
-          <label>Birthday:</label>
-          {editMode ? (
-            <input
-              type="date"
-              name="syntymäpäivä"
-              value={profile.syntymäpäivä}
-              onChange={handleChange}
-            />
-          ) : (
-            <p>{profile.syntymäpäivä}</p>
-          )}
-        </div>
+
+          {!showPopup && !profile && <p>Loading...</p>}
       </div>
-      {editMode ? (
-        <div>
-          <button onClick={handleSave}>Save</button>
-          <button onClick={() => setEditMode(false)}>Cancel</button>
-        </div>
-      ) : (
-        <button onClick={() => setEditMode(true)}>Edit Profile</button>
-      )}
-    </div>
   );
-}
+};
+
+const handleLogout = () => {
+  localStorage.removeItem("token"); // Clear the token
+  window.location.href = "/login"; // Redirect to login page
+};
 
 export default Profile;
