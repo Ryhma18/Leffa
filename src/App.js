@@ -10,16 +10,15 @@ import Profile from "./pages/Profile";
 import Reviews from "./pages/Reviews";
 import Showtimes from "./pages/Showtimes"; 
 import Register from "./pages/Register";
+import Review from "./pages/Review";
 
 const Home = () => <h1>Etusivu</h1>;
 
 function App() {
-  const [searchQuery, setSearchQuery] = useState("");
+ 
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
+
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -58,27 +57,19 @@ function App() {
             </Link>
           </nav>
 
-          {/* Hakupalkki */}
-          <div className="search-container">
-            <input
-              type="text"
-              className="search-1"
-              placeholder="Hae elokuvia..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
-          </div>
+          
         </header>
 
         {/* Reittien määrittely */}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/movies" element={<Movies searchQuery={searchQuery} />} />
+          <Route path="/movies" element={<Movies />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/showtimes" element={<Showtimes />} /> 
           <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/review" element={<Review />} />
         </Routes>
       </div>
     </Router>

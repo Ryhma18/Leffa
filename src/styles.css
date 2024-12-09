@@ -1,5 +1,5 @@
 .horizontal-menu-1 {
-	width: 1000px;
+	width: 0px;
 	height: 43px;
 	background: #FDCA00; /* Keltainen tausta */
 	color: #232323;
@@ -15,7 +15,7 @@
 
 .horizontal-menu-1 button {
 	flex: 1; /* Jakaa tilan tasaisesti */
-    width: 317px;
+    width: 300px;
 	background: #FDCA00; /* Keltainen tausta */
 	color: #232323; /* Tekstin väri */
 	border: 2px solid #232323; /* Musta reunus jokaiselle napille */
@@ -27,6 +27,46 @@
 
 .horizontal-menu-1 button:hover {
 	background-color: #E5B800; /* Tummempi keltainen hover-efekti */
+}
+
+/* Hamburger Icon */
+.hamburger-menu {
+	display: none; /* Hidden by default */
+	flex-direction: column;
+	cursor: pointer;
+	margin-right: 10px;
+}
+
+.hamburger-menu .bar {
+	width: 25px;
+	height: 3px;
+	background-color: #232323;
+	margin: 4px 0;
+}
+
+
+@media (max-width: 1910px) {
+	.hamburger-menu {
+		display: flex;
+	}
+
+	/* Navigation Menu Behavior */
+	.horizontal-menu-1 {
+		flex-direction: column; /* Stack items vertically */
+		max-height: 0; /* Collapsed by default */
+		overflow: hidden; /* Hide content */
+	}
+
+	.horizontal-menu-1.open {
+		max-height: 500px; /* Expand to show menu */
+	}
+
+	.horizontal-menu-1 button {
+		font-size: 12px;
+		padding: 8px;
+		margin: 5px 0; /* Adjust spacing between buttons */
+		width: 100%; /* Full width for buttons */
+	}
 }
 
 
