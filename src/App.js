@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import ToggleSwitch from "./ToggleSwitch"; // Import the ToggleSwitch component
 import "./App.css";
 import "./styles.css";
 
-// komponentit pages-kansiosta
+// Other components
 import Movies from "./pages/Movies";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -15,10 +16,20 @@ import Review from "./pages/Review";
 const Home = () => <h1>Etusivu</h1>;
 
 function App() {
- 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false); 
 
+  const toggleDarkMode = (newState) => {
+    setDarkMode(newState);
+  };
 
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
+  }, [darkMode]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -57,7 +68,8 @@ function App() {
             </Link>
           </nav>
 
-          
+          {/* Dark Mode Toggle Button */}
+          <ToggleSwitch onToggle={toggleDarkMode} />
         </header>
 
         {/* Reittien määrittely */}
@@ -65,7 +77,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/movies" element={<Movies />} />
           <Route path="/reviews" element={<Reviews />} />
-          <Route path="/showtimes" element={<Showtimes />} /> 
+          <Route path="/showtimes" element={<Showtimes />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
