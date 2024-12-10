@@ -739,3 +739,90 @@ body {
 .delete-button:hover {
   background-color: darkred;
 }
+
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+h1 {
+  margin: 10px 0;
+}
+
+.logout-button,
+.delete-button {
+  margin-top: 20px;
+}
+
+.favorites-section {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 30px;
+  text-align: center;
+}
+
+.favorites-scroll-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 20px;
+}
+
+.favorite-card {
+  width: 200px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+  background-color: #fff;
+  transition: transform 0.3s ease-in-out;
+}
+
+.favorite-card img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.favorite-card h3 {
+  font-size: 1.1em;
+  margin: 10px 0;
+}
+
+.favorite-card p {
+  font-size: 0.9em;
+  color: #555;
+}
+
+.favorite-card:hover {
+  transform: scale(1.05);
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.popup-content button {
+  margin-top: 10px;
+}

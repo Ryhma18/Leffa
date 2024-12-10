@@ -28,6 +28,19 @@ const MoviesSearch = () => {
     fetchGenres();
   }, []);
 
+  // Lataa suosikit localStoragesta
+  useEffect(() => {
+    const storedFavorites = localStorage.getItem("favoriteMovies");
+    if (storedFavorites) {
+      setFavoriteMovies(JSON.parse(storedFavorites));
+    }
+  }, []);
+
+  // Päivitä localStorage aina, kun suosikit muuttuvat
+  useEffect(() => {
+    localStorage.setItem("favoriteMovies", JSON.stringify(favoriteMovies));
+  }, [favoriteMovies]);
+
   // Hae näyttelijän ID hänen nimellään
   useEffect(() => {
     const fetchActorId = async () => {
@@ -95,8 +108,15 @@ const MoviesSearch = () => {
   }, [searchQuery, searchYear, selectedGenre, actorId, sortByPopularity]);
 
   // Funktio elokuvan lisäämiseksi suosikkeihin
-  const addToFavorites = async (movieId) => {
-    // Funktio pysyy ennallaan
+  const addToFavorites = (movie) => {
+    if (!favoriteMovies.some((fav) => fav.id === movie.id)) {
+      setFavoriteMovies([...favoriteMovies, movie]);
+    }
+  };
+
+  // Funktio elokuvan poistamiseksi suosikeista
+  const removeFromFavorites = (movieId) => {
+    setFavoriteMovies(favoriteMovies.filter((movie) => movie.id !== movieId));
   };
 
   return (
@@ -106,7 +126,7 @@ const MoviesSearch = () => {
         <input
           type="text"
           className="search-1"
-          placeholder="Hae elokuvia nimellä..."
+          placeholder="Hae elokuvia nimellä... "
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)} // Elokuvan nimen muutos
         />
@@ -165,15 +185,41 @@ const MoviesSearch = () => {
                 <p>Julkaisuvuosi: {result.release_date?.split("-")[0] || "Ei tietoa"}</p>
                 <p>Suosio: {result.popularity.toFixed(1)}</p>
                 <button
-                  onClick={() => addToFavorites(result.id)}
-                  disabled={favoriteMovies.includes(result.id)} // Estetään, jos elokuva on jo suosikeissa
+                  onClick={() => addToFavorites(result)}
+                  disabled={favoriteMovies.some((fav) => fav.id === result.id)} // Estetään, jos elokuva on jo suosikeissa
                 >
-                  {favoriteMovies.includes(result.id) ? "Jo suosikissa" : "Lisää suosikkeihin"}
+                  {favoriteMovies.some((fav) => fav.id === result.id) ? "Jo suosikissa" : "Lisää suosikkeihin"}
                 </button>
               </div>
             ))
           ) : (
             <p>Ei tuloksia hakukriteereillä</p>
+          )}
+        </div>
+      </div>
+
+      {/* Suosikit */}
+      <div className="favorites-container">
+        <h2>Suosikit</h2>
+        <div className="favorites-grid">
+          {favoriteMovies.length > 0 ? (
+            favoriteMovies.map((movie) => (
+              <div className="favorite-card" key={movie.id}>
+                <img
+                  src={
+                    movie.poster_path
+                      ? `https://image.tmdb.org/t/p/w300/${movie.poster_path}`
+                      : "https://via.placeholder.com/300x450?text=Ei+kuvaa"
+                  }
+                  alt={movie.title}
+                />
+                <h3>{movie.title}</h3>
+                <p>Julkaisuvuosi: {movie.release_date?.split("-")[0] || "Ei tietoa"}</p>
+                <button onClick={() => removeFromFavorites(movie.id)}>Poista suosikeista</button>
+              </div>
+            ))
+          ) : (
+            <p>Ei suosikkeja</p>
           )}
         </div>
       </div>
