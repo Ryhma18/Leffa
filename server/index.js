@@ -4,8 +4,7 @@ import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import pkg from 'pg';
-import { verifyToken } from './utility/jwt.js';
-
+import { verifyToken } from './utility/jwt.js'; // Tämä oletetaan olevan jossain
 
 const { Pool } = pkg;
 const port = 3001;
@@ -58,6 +57,8 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Routes
+
+// Test route
 app.get('/', (req, res) => {
     res.send('Working');
 });
@@ -71,17 +72,15 @@ app.post('/create', async (req, res) => {
     }
 
     try {
-
-        
         const result = await pool.query(
             'INSERT INTO käyttäjä (etunimi, sukunimi, salasana, sähköposti, käyttäjänimi, syntymäpäivä) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
             [etunimi, sukunimi, salasana, sähköposti, käyttäjänimi, syntymäpäivä]
         );
         res.status(201).json({
-        id: result.rows[0].id,
-        etunimi: result.rows[0].etunimi,
-        sähköposti: result.rows[0].sähköposti,
-        käyttäjänimi: result.rows[0].käyttäjänimi,     
+            id: result.rows[0].id,
+            etunimi: result.rows[0].etunimi,
+            sähköposti: result.rows[0].sähköposti,
+            käyttäjänimi: result.rows[0].käyttäjänimi,
         });
     } catch (error) {
         console.error('Error inserting into database:', error.stack);
@@ -108,8 +107,7 @@ app.post('/login', async (req, res) => {
         }
 
         const user = result.rows[0];
-
-        const isPasswordMatch = await(salasana.trim, user.salasana); // Compare hashed password
+        const isPasswordMatch = await bcrypt.compare(salasana.trim(), user.salasana); // Compare hashed password
 
         if (!isPasswordMatch) {
             return res.status(401).send({ error: 'Invalid username or password' });
@@ -126,6 +124,87 @@ app.post('/login', async (req, res) => {
     } catch (error) {
         console.error('Error during login:', error.stack);
         res.status(500).send({ error: 'Internal server error' });
+    }
+});
+
+// Profile route (only accessible with token)
+app.get('/profile', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT etunimi, sukunimi, sähköposti, käyttäjänimi FROM käyttäjä WHERE id = $1',
+            [req.user.id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).send({ message: "User not found." });
+        }
+
+        res.status(200).send(result.rows[0]);
+    } catch (error) {
+        console.error("Error fetching profile:", error.stack);
+        res.status(500).send({ message: "Internal server error." });
+    }
+});
+
+// Favorites routes
+app.post('/suosikit', authenticateToken, async (req, res) => {
+    const { movie_id, title, poster_path, release_date } = req.body;
+
+    if (!movie_id || !title) {
+        return res.status(400).send({ error: "Missing movie details" });
+    }
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO suosikit (user_id, movie_id, title, poster_path, release_date)
+             VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_id, movie_id) DO NOTHING RETURNING *`,
+            [req.user.id, movie_id, title, poster_path, release_date]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(200).send({ message: "Movie already in suosikit" });
+        }
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error adding suosikit:', error.stack);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
+
+// Fetch user favorites
+app.get('/suosikit', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT movie_id, title, poster_path, release_date 
+             FROM suosikit WHERE user_id = $1`,
+            [req.user.id]
+        );
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching suosikit:', error.stack);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
+
+// Delete favorite movie
+app.delete('/suosikit/:movie_id', authenticateToken, async (req, res) => {
+    const { movie_id } = req.params;
+
+    try {
+        const result = await pool.query(
+            `DELETE FROM suosikit WHERE user_id = $1 AND movie_id = $2`,
+            [req.user.id, movie_id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).send({ message: "Movie not found in suosikit" });
+        }
+
+        res.status(200).send({ message: "Movie removed from suosikit" });
+    } catch (error) {
+        console.error('Error removing suosikit:', error.stack);
+        res.status(500).send({ error: "Internal server error" });
     }
 });
 
@@ -153,62 +232,8 @@ app.post('/create/review', async (req, res) => {
     }
 });
 
-// Profile route (only accessible with token)
-app.get('/profile', authenticateToken, async (req, res) => {
-    try {
-        const result = await pool.query(
-            'SELECT etunimi, sukunimi, sähköposti, käyttäjänimi FROM käyttäjä WHERE id = $1',
-            [req.user.id]
-        );
-
-        if (result.rows.length === 0) {
-            return res.status(404).send({ message: "User not found." });
-        }
-
-        res.status(200).send(result.rows[0]);
-    } catch (error) {
-        console.error("Error fetching profile:", error.stack);
-        res.status(500).send({ message: "Internal server error." });
-    }
-});
-
-
-app.get('/account', async (req, res) => {
-    const pool = openDb();
-
-    // Get the token from the Authorization header
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
-    }
-
-    try {
-        // Verify the token
-        const decoded = verifyToken(token);
-
-        // Fetch the user details from the database
-        const result = await pool.query('SELECT * FROM käyttäjä WHERE id = $1', [decoded.id]);
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'User not found.' });
-        }
-
-        const user = result.rows[0];
-        res.status(200).json({
-            id: user.id,
-            käyttäjänimi: user.käyttäjänimi,
-            sähköposti: user.sähköposti,
-            etunimi: user.etunimi,
-            sukunimi: user.sukunimi,
-        });
-    } catch (error) {
-        console.error('Error fetching user:', error.message);
-        res.status(500).json({ error: 'Internal server error.' });
-    }
-});
-
+// Delete user account
 app.delete("/delete", async (req, res) => {
-
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
         return res.status(401).json({ error: "Unauthorized. No token provided." });
@@ -237,4 +262,3 @@ app.delete("/delete", async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
- 

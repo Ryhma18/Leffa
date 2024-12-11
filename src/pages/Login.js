@@ -9,14 +9,17 @@ const Login = () => {
   });
 
   const [message, setMessage] = useState(""); // To display success/error messages
+  const [loading, setLoading] = useState(false); // To manage loading state
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setFormData({ ...formData, [event.target.name]: event.target.value });
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    setLoading(true); // Set loading state to true when submitting
 
     console.log("Submitting formData:", formData);
 
@@ -25,18 +28,25 @@ const Login = () => {
         käyttäjänimi: formData.käyttäjänimi,
         salasana: formData.salasana,
       });
+
       if (response.status === 200) {
         setMessage("Kirjautuminen onnistui!");
-        localStorage.setItem("token", response.data.token);
-        window.location.href = "/profile";
+        localStorage.setItem("token", response.data.token); // Save token to localStorage
+        window.location.href = "/profile"; // Redirect to profile page
       }
     } catch (error) {
       console.error("Login failed", error);
-      setMessage("Virheellinen käyttäjätunnus tai salasana.");
+      if (error.response) {
+        // If error has a response from the server
+        setMessage(error.response?.data?.message || "Virheellinen käyttäjätunnus tai salasana.");
+      } else {
+        // If there is no response from the server
+        setMessage("Palvelimessa on ongelmia. Yritä myöhemmin uudelleen.");
+      }
+    } finally {
+      setLoading(false); // Set loading state to false after the request is completed
     }
   };
-
-
 
   return (
     <div className="login-container">
@@ -74,7 +84,9 @@ const Login = () => {
               required
             />
           </div>
-          <button type="submit" className="login-button">Kirjaudu</button>
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? "Kirjaudutaan..." : "Kirjaudu"} {/* Show loading text when submitting */}
+          </button>
         </form>
         {message && <p className="message">{message}</p>} {/* Display messages */}
         <div className="register-link">

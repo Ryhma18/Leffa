@@ -31,3 +31,13 @@ CREATE TABLE ryhmän_jäsenet (
     käyttäjä_id INT NOT NULL REFERENCES käyttäjä(id) ON DELETE CASCADE,
     liittynyt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE  suosikit (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES käyttäjä(id) ON DELETE CASCADE,
+    movie_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    poster_path VARCHAR(255),
+    release_date VARCHAR(10),
+    UNIQUE(user_id, movie_id)
+);

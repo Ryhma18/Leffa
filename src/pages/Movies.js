@@ -8,10 +8,9 @@ const MoviesSearch = () => {
   const [searchYear, setSearchYear] = useState(""); // Julkaisuvuosi
   const [selectedGenre, setSelectedGenre] = useState(""); // Genre
   const [selectedActor, setSelectedActor] = useState(""); // Näyttelijän nimi
-  const [actorId, setActorId] = useState(null); // Näyttelijän ID
   const [genres, setGenres] = useState([]); // Genret listalle
   const [sortByPopularity, setSortByPopularity] = useState(false); // Suosiojärjestys
-  const [favoriteMovies, setFavoriteMovies] = useState([]); // Suosikkielokuvat
+  const [suosikit, setSuosikit] = useState([]); // Suosikkielokuvat
   const apiKey = "23c2cd5829a1d7db4e98fee32fc45565"; // API-avain
 
   // Hae genret, kun komponentti ladataan
@@ -30,36 +29,16 @@ const MoviesSearch = () => {
 
   // Lataa suosikit localStoragesta
   useEffect(() => {
-    const storedFavorites = localStorage.getItem("favoriteMovies");
-    if (storedFavorites) {
-      setFavoriteMovies(JSON.parse(storedFavorites));
+    const storedSuosikit = localStorage.getItem("suosikit");
+    if (storedSuosikit) {
+      setSuosikit(JSON.parse(storedSuosikit));
     }
   }, []);
 
   // Päivitä localStorage aina, kun suosikit muuttuvat
   useEffect(() => {
-    localStorage.setItem("favoriteMovies", JSON.stringify(favoriteMovies));
-  }, [favoriteMovies]);
-
-  // Hae näyttelijän ID hänen nimellään
-  useEffect(() => {
-    const fetchActorId = async () => {
-      if (!selectedActor.trim()) {
-        setActorId(null);
-        return;
-      }
-      try {
-        const url = `https://api.themoviedb.org/3/search/person?api_key=${apiKey}&language=fi-FI&query=${encodeURIComponent(selectedActor)}`;
-        const response = await axios.get(url);
-        const actor = response.data.results[0]; // Käytetään ensimmäistä osumaa
-        setActorId(actor ? actor.id : null);
-      } catch (error) {
-        console.error("Virhe haettaessa näyttelijää:", error);
-        setActorId(null);
-      }
-    };
-    fetchActorId();
-  }, [selectedActor]);
+    localStorage.setItem("suosikit", JSON.stringify(suosikit));
+  }, [suosikit]);
 
   // Hae elokuvia hakukriteerien perusteella
   useEffect(() => {
@@ -85,11 +64,6 @@ const MoviesSearch = () => {
           url += `&with_genres=${selectedGenre}`;
         }
 
-        // Lisää näyttelijän ID, jos se on asetettu
-        if (actorId) {
-          url += `&with_cast=${actorId}`;
-        }
-
         // Lisää suosiojärjestys, jos se on valittu
         if (sortByPopularity) {
           url += `&sort_by=popularity.asc`; // Vähemmän suosituista ensin
@@ -97,26 +71,75 @@ const MoviesSearch = () => {
           url += `&sort_by=popularity.desc`; // Suosituimmat ensin
         }
 
-        console.log("Rakennettu API URL: ", url); // Debuggausta varten
+        // Hakukriteerit näyttelijälle
+        if (selectedActor.trim()) {
+          const actorResponse = await axios.get(
+            `https://api.themoviedb.org/3/search/person?api_key=${apiKey}&language=fi-FI&query=${encodeURIComponent(selectedActor)}`
+          );
+
+          if (actorResponse.data.results.length > 0) {
+            const actorId = actorResponse.data.results[0].id;
+            const movieCreditsResponse = await axios.get(
+              `https://api.themoviedb.org/3/person/${actorId}/movie_credits?api_key=${apiKey}&language=fi-FI`
+            );
+            const actorMovies = movieCreditsResponse.data.cast;
+            setResults(actorMovies); // Asetetaan hakutulokset näyttelijän elokuvista
+            return;
+          } else {
+            setResults([]);
+            return;
+          }
+        }
+
+        // Elokuvahaku
         const response = await axios.get(url);
         setResults(response.data.results || []);
       } catch (error) {
         console.error("Virhe haettaessa elokuvia:", error);
       }
     };
+
     fetchMovies();
-  }, [searchQuery, searchYear, selectedGenre, actorId, sortByPopularity]);
+  }, [searchQuery, searchYear, selectedGenre, sortByPopularity, selectedActor]);
 
   // Funktio elokuvan lisäämiseksi suosikkeihin
-  const addToFavorites = (movie) => {
-    if (!favoriteMovies.some((fav) => fav.id === movie.id)) {
-      setFavoriteMovies([...favoriteMovies, movie]);
+  const addToSuosikit = async (movie) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:3001/suosikit",
+        {
+          movie_id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_path,
+          release_date: movie.release_date,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 201) {
+        setSuosikit([...suosikit, movie]);
+      } else {
+        console.log("Elokuva on jo suosikeissa");
+      }
+    } catch (error) {
+      console.error("Virhe lisättäessä suosikkia:", error);
     }
   };
 
   // Funktio elokuvan poistamiseksi suosikeista
-  const removeFromFavorites = (movieId) => {
-    setFavoriteMovies(favoriteMovies.filter((movie) => movie.id !== movieId));
+  const removeFromSuosikit = async (movieId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:3001/suosikit/${movieId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSuosikit(suosikit.filter((movie) => movie.id !== movieId));
+    } catch (error) {
+      console.error("Virhe poistettaessa suosikkia:", error);
+    }
   };
 
   return (
@@ -183,12 +206,12 @@ const MoviesSearch = () => {
                 />
                 <h3>{result.title}</h3>
                 <p>Julkaisuvuosi: {result.release_date?.split("-")[0] || "Ei tietoa"}</p>
-                <p>Suosio: {result.popularity.toFixed(1)}</p>
+                <p>Suosio: {result.popularity?.toFixed(1) || "Ei tietoa"}</p>
                 <button
-                  onClick={() => addToFavorites(result)}
-                  disabled={favoriteMovies.some((fav) => fav.id === result.id)} // Estetään, jos elokuva on jo suosikeissa
+                  onClick={() => addToSuosikit(result)}
+                  disabled={suosikit.some((fav) => fav.id === result.id)} // Estetään, jos elokuva on jo suosikeissa
                 >
-                  {favoriteMovies.some((fav) => fav.id === result.id) ? "Jo suosikissa" : "Lisää suosikkeihin"}
+                  {suosikit.some((fav) => fav.id === result.id) ? "Jo suosikissa" : "Lisää suosikkeihin"}
                 </button>
               </div>
             ))
@@ -199,12 +222,12 @@ const MoviesSearch = () => {
       </div>
 
       {/* Suosikit */}
-      <div className="favorites-container">
+      <div className="suosikit-container">
         <h2>Suosikit</h2>
-        <div className="favorites-grid">
-          {favoriteMovies.length > 0 ? (
-            favoriteMovies.map((movie) => (
-              <div className="favorite-card" key={movie.id}>
+        <div className="suosikit-grid">
+          {suosikit.length > 0 ? (
+            suosikit.map((movie) => (
+              <div className="suosikit-card" key={movie.id}>
                 <img
                   src={
                     movie.poster_path
@@ -215,7 +238,7 @@ const MoviesSearch = () => {
                 />
                 <h3>{movie.title}</h3>
                 <p>Julkaisuvuosi: {movie.release_date?.split("-")[0] || "Ei tietoa"}</p>
-                <button onClick={() => removeFromFavorites(movie.id)}>Poista suosikeista</button>
+                <button onClick={() => removeFromSuosikit(movie.id)}>Poista suosikeista</button>
               </div>
             ))
           ) : (
