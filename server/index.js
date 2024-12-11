@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
 import pkg from 'pg';
 import { verifyToken } from './utility/jwt.js'; // Tämä oletetaan olevan jossain
 
@@ -107,9 +106,9 @@ app.post('/login', async (req, res) => {
         }
 
         const user = result.rows[0];
-        const isPasswordMatch = await bcrypt.compare(salasana.trim(), user.salasana); // Compare hashed password
 
-        if (!isPasswordMatch) {
+        // Check password directly without bcrypt (using plain text comparison)
+        if (salasana.trim() !== user.salasana) {
             return res.status(401).send({ error: 'Invalid username or password' });
         }
 
@@ -231,6 +230,7 @@ app.post('/create/review', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // Delete user account
 app.delete("/delete", async (req, res) => {

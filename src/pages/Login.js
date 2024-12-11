@@ -35,7 +35,7 @@ const Login = () => {
         window.location.href = "/profile"; // Redirect to profile page
       }
     } catch (error) {
-      console.error("Login failed", error);
+      console.error("Login failed", error.response || error.message);
       if (error.response) {
         // If error has a response from the server
         setMessage(error.response?.data?.message || "Virheellinen käyttäjätunnus tai salasana.");
