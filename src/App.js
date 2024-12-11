@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Switch } from "react-router-dom";
 import ToggleSwitch from "./ToggleSwitch"; // Import the ToggleSwitch component
 import "./App.css";
 import "./styles.css";
@@ -12,6 +12,9 @@ import Reviews from "./pages/Reviews";
 import Showtimes from "./pages/Showtimes"; 
 import Register from "./pages/Register";
 import Review from "./pages/Review";
+import GroupList from "./pages/grouplist";
+import Groups from "./pages/groups";
+import CreateGroup from "./pages/creategroup";
 
 const Home = () => <h1>Etusivu</h1>;
 
@@ -60,6 +63,12 @@ function App() {
             <Link to="/showtimes" onClick={() => setMenuOpen(false)}>
               <button>Näytösajat</button>
             </Link>
+            <Link to="/grouplist" onClick={() => setMenuOpen(false)}>
+            <button>Ryhmälista</button>
+            </Link>
+            <Link to="/groups" onClick={() => setMenuOpen(false)}>
+            <button>Omat Ryhmät</button>
+            </Link>
             <Link to="/profile" onClick={() => setMenuOpen(false)}>
               <button>Profiili</button>
             </Link>
@@ -82,6 +91,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/review" element={<Review />} />
+          <Route path="/grouplist" element={<GroupList />} />
+          <Route path="/groups" element={<Groups />} />
+          <Route path="/create-group" element={<CreateGroup />} />
         </Routes>
       </div>
     </Router>

@@ -107,7 +107,7 @@ app.post('/login', async (req, res) => {
         }
 
         const user = result.rows[0];
-        const isPasswordMatch = await bcrypt.compare(salasana.trim(), user.salasana); // Compare hashed password
+        const isPasswordMatch = await(salasana.trim(), user.salasana); // Compare hashed password
 
         if (!isPasswordMatch) {
             return res.status(401).send({ error: 'Invalid username or password' });
@@ -257,6 +257,136 @@ app.delete("/delete", async (req, res) => {
         res.status(500).json({ error: "Internal server error." });
     }
 });
+
+// Grouplist endpoint
+app.get('/groups', async (req, res) => {
+    try {
+        // Fetch all groups from the `ryhmät` table
+        const result = await pool.query(
+            'SELECT id, nimi, description, created_at FROM ryhmät'
+        ); 
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching groups:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}); 
+
+// Your groups endpoint
+app.get('/groups/mine', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        console.log("No token provided.");
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token);
+        console.log("Decoded token:", decoded);
+
+        const result = await pool.query(
+            `SELECT g.id, g.nimi, g.description, g.created_at
+             FROM ryhmät g
+             JOIN ryhmän_jäsenet rj ON g.id = rj.ryhmä_id
+             WHERE rj.käyttäjä_id = $1`,
+            [decoded.id]
+        );
+
+        console.log("Groups fetched for user:", result.rows);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'No groups found for this user.' });
+        }
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error("Error fetching groups:", error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}); 
+
+// Create group endpoint
+app.post('/groups/create', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token); // Decode the token to get the user ID
+        const { nimi, kuvaus } = req.body;
+
+        if (!nimi || !kuvaus) {
+            return res.status(400).json({ error: 'Group name and description are required.' });
+        }
+
+        // Create the group and get its ID
+        const groupResult = await pool.query(
+            `INSERT INTO ryhmät (nimi, description, created_at, creator_id)
+             VALUES ($1, $2, CURRENT_DATE, $3) RETURNING id`,
+            [nimi, kuvaus, decoded.id]
+        );
+
+        const groupId = groupResult.rows[0].id;
+
+        // Add the creator as a member of the group
+        await pool.query(
+            `INSERT INTO ryhmän_jäsenet (ryhmä_id, käyttäjä_id)
+             VALUES ($1, $2)`,
+            [groupId, decoded.id]
+        );
+
+        res.status(201).json({
+            message: 'Group created successfully.',
+            group: { id: groupId, nimi, kuvaus },
+        });
+    } catch (error) {
+        console.error('Error creating group:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}); 
+
+// Join group endpoint
+app.post('/groups/join', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token); // Decode the token to get the user ID
+        const { ryhmä_id } = req.body;
+
+        if (!ryhmä_id) {
+            return res.status(400).json({ error: 'Group ID is required.' });
+        }
+
+        // Check if the user is already a member of the group
+        const checkMembership = await pool.query(
+            `SELECT * FROM ryhmän_jäsenet WHERE ryhmä_id = $1 AND käyttäjä_id = $2`,
+            [ryhmä_id, decoded.id]
+        );
+
+        if (checkMembership.rows.length > 0) {
+            return res.status(400).json({ error: 'You are already a member of this group.' });
+        }
+
+        // Add the user to the group
+        await pool.query(
+            `INSERT INTO ryhmän_jäsenet (ryhmä_id, käyttäjä_id) VALUES ($1, $2)`,
+            [ryhmä_id, decoded.id]
+        );
+
+        res.status(200).json({ message: 'Successfully joined the group.' });
+    } catch (error) {
+        console.error('Error joining group:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}); 
 
 // Start server
 app.listen(port, () => {
