@@ -5,6 +5,7 @@ import axios from "axios";
 const Groups = () => {
   const [userGroups, setUserGroups] = useState([]);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +34,35 @@ const Groups = () => {
     fetchUserGroups();
 }, [navigate]);
 
+const handleLeaveGroup = async (groupId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        setMessage("You must be logged in to leave a group.");
+        return;
+    }
+
+    const confirmLeave = window.confirm(
+        "Are you sure you want to leave this group? You will lose access to it."
+    );
+
+    if (!confirmLeave) {
+        return;
+    }
+
+    try {
+        const response = await axios.delete("http://localhost:3001/groups/leave", {
+            headers: { Authorization: `Bearer ${token}` },
+            data: { ryhmä_id: groupId },
+        });
+
+        setMessage(response.data.message);
+        setUserGroups(userGroups.filter((group) => group.id !== groupId)); // Remove group from state
+    } catch (err) {
+        console.error("Error leaving group:", err.response?.data || err.message);
+        setMessage(err.response?.data?.error || "Failed to leave group. Please try again.");
+    }
+};
+
   return (
     <div className="user-groups-container">
         <h1>Sinun Ryhmät</h1>
@@ -43,6 +73,11 @@ const Groups = () => {
             <h2>{group.nimi}</h2>
             <p>{group.description}</p>
             <p>Created on: {new Date(group.luomispäivä).toLocaleDateString()}</p>
+            <button
+            className="leave-group-button"
+            onClick={() => handleLeaveGroup(group.id)}>
+            Poistu ryhmästä
+            </button>
             </div>
             ))}
         </div>
