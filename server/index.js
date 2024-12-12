@@ -388,6 +388,38 @@ app.post('/groups/join', async (req, res) => {
     }
 }); 
 
+app.delete('/groups/leave', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token); // Decode the token to get the user ID
+        const { ryhmä_id } = req.body;
+
+        if (!ryhmä_id) {
+            return res.status(400).json({ error: 'Group ID is required.' });
+        }
+
+        // Delete the user's membership in the group
+        const result = await pool.query(
+            `DELETE FROM ryhmän_jäsenet WHERE ryhmä_id = $1 AND käyttäjä_id = $2 RETURNING *`,
+            [ryhmä_id, decoded.id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'You are not a member of this group.' });
+        }
+
+        res.status(200).json({ message: 'Successfully left the group.' });
+    } catch (error) {
+        console.error('Error leaving group:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
 // Start server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
