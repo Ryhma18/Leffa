@@ -258,6 +258,375 @@ app.delete("/delete", async (req, res) => {
     }
 });
 
+// Grouplist endpoint
+app.get('/groups', async (req, res) => {
+    try {
+        // Fetch all groups from the `ryhmät` table
+        const result = await pool.query(
+            'SELECT id, nimi, kuvaus, luomispäivä FROM ryhmät'
+        ); 
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching groups:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}); 
+
+// Create group endpoint
+app.post('/groups/create', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token); // Decode the token to get the user ID
+        const { nimi, kuvaus } = req.body;
+
+        if (!nimi || !kuvaus) {
+            return res.status(400).json({ error: 'Group name and description are required.' });
+        }
+
+        // Create the group and get its ID
+        const groupResult = await pool.query(
+            `INSERT INTO ryhmät (nimi, kuvaus, luomispäivä, creator_id)
+             VALUES ($1, $2, CURRENT_DATE, $3) RETURNING id`,
+            [nimi, kuvaus, decoded.id]
+        );
+
+        const groupId = groupResult.rows[0].id;
+
+        // Add the creator as a member of the group
+        await pool.query(
+            `INSERT INTO ryhmän_jäsenet (ryhmä_id, käyttäjä_id)
+             VALUES ($1, $2)`,
+            [groupId, decoded.id]
+        );
+
+        res.status(201).json({
+            message: 'Group created successfully.',
+            group: { id: groupId, nimi, kuvaus },
+        });
+    } catch (error) {
+        console.error('Error creating group:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}); 
+
+// Join group endpoint
+app.post('/groups/join', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token); // Decode the token to get the user ID
+        const { ryhmä_id } = req.body;
+
+        if (!ryhmä_id) {
+            return res.status(400).json({ error: 'Group ID is required.' });
+        }
+
+        // Check if the user is already a member of the group
+        const checkMembership = await pool.query(
+            `SELECT * FROM ryhmän_jäsenet WHERE ryhmä_id = $1 AND käyttäjä_id = $2`,
+            [ryhmä_id, decoded.id]
+        );
+
+        if (checkMembership.rows.length > 0) {
+            return res.status(400).json({ error: 'Olet jo tämän ryhmän jäsen.' });
+        }
+
+        // Add the user to the group
+        await pool.query(
+            `INSERT INTO ryhmän_jäsenet (ryhmä_id, käyttäjä_id) VALUES ($1, $2)`,
+            [ryhmä_id, decoded.id]
+        );
+
+        res.status(200).json({ message: 'Ryhmään liittyminen onnistui.' });
+    } catch (error) {
+        console.error('Error joining group:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+}); 
+
+app.get('/groups/mine', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token); // Decode the token to get the user ID
+
+        const result = await pool.query(
+            `SELECT g.id, g.nimi, g.kuvaus, g.luomispäivä
+             FROM ryhmät g
+             JOIN ryhmän_jäsenet rj ON g.id = rj.ryhmä_id
+             WHERE rj.käyttäjä_id = $1`,
+            [decoded.id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'No groups found for this user.' });
+        }
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching user groups:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.post('/groups/request-join', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token); // Decode the token to get the user ID
+        const { ryhmä_id } = req.body;
+
+        if (!ryhmä_id) {
+            return res.status(400).json({ error: 'Group ID is required.' });
+        }
+
+        // Check if the user already requested to join
+        const existingRequest = await pool.query(
+            `SELECT * FROM join_requests WHERE ryhmä_id = $1 AND käyttäjä_id = $2 AND status = 'pending'`,
+            [ryhmä_id, decoded.id]
+        );
+
+        if (existingRequest.rows.length > 0) {
+            return res.status(400).json({ error: 'You already have a pending request for this group.' });
+        }
+
+        // Insert a new join request
+        await pool.query(
+            `INSERT INTO join_requests (ryhmä_id, käyttäjä_id) VALUES ($1, $2)`,
+            [ryhmä_id, decoded.id]
+        );
+
+        res.status(200).json({ message: 'Join request sent successfully.' });
+    } catch (error) {
+        console.error('Error sending join request:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.get('/groups/requests/:groupId', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token);
+        const { groupId } = req.params;
+
+        // Check if the logged-in user is the creator of the group
+        const group = await pool.query(`SELECT * FROM ryhmät WHERE id = $1 AND creator_id = $2`, [groupId, decoded.id]);
+
+        if (group.rows.length === 0) {
+            return res.status(403).json({ error: 'You are not the creator of this group.' });
+        }
+
+        // Fetch pending join requests for the group
+        const requests = await pool.query(
+            `SELECT jr.id, u.käyttäjänimi, u.sähköposti, jr.request_date
+             FROM join_requests jr
+             JOIN käyttäjä u ON jr.käyttäjä_id = u.id
+             WHERE jr.ryhmä_id = $1 AND jr.status = 'pending'`,
+            [groupId]
+        );
+
+        res.status(200).json(requests.rows);
+    } catch (error) {
+        console.error('Error fetching join requests:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.post('/groups/requests/respond', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token);
+        const { requestId, status } = req.body;
+
+        if (!['approved', 'rejected'].includes(status)) {
+            return res.status(400).json({ error: 'Invalid status. Must be "approved" or "rejected".' });
+        }
+
+        // Fetch the join request
+        const request = await pool.query(
+            `SELECT jr.*, g.creator_id FROM join_requests jr
+             JOIN ryhmät g ON jr.ryhmä_id = g.id
+             WHERE jr.id = $1`,
+            [requestId]
+        );
+
+        if (request.rows.length === 0) {
+            return res.status(404).json({ error: 'Join request not found.' });
+        }
+
+        const { creator_id, ryhmä_id, käyttäjä_id } = request.rows[0];
+
+        if (creator_id !== decoded.id) {
+            return res.status(403).json({ error: 'You are not authorized to respond to this request.' });
+        }
+
+        // Update the request status
+        await pool.query(`UPDATE join_requests SET status = $1 WHERE id = $2`, [status, requestId]);
+
+        // If approved, add the user to the group
+        if (status === 'approved') {
+            await pool.query(`INSERT INTO ryhmän_jäsenet (ryhmä_id, käyttäjä_id) VALUES ($1, $2)`, [ryhmä_id, käyttäjä_id]);
+        }
+
+        res.status(200).json({ message: `Request ${status} successfully.` });
+    } catch (error) {
+        console.error('Error responding to join request:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.get('/groups/requests/:groupId', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token);
+        const { groupId } = req.params;
+
+        // Check if the logged-in user is the creator of the group
+        const group = await pool.query(
+            `SELECT * FROM ryhmät WHERE id = $1 AND creator_id = $2`,
+            [groupId, decoded.id]
+        );
+
+        if (group.rows.length === 0) {
+            return res.status(403).json({ error: 'You are not the creator of this group.' });
+        }
+
+        // Fetch pending join requests
+        const requests = await pool.query(
+            `SELECT jr.id AS request_id, u.id AS user_id, u.käyttäjänimi, u.sähköposti, jr.request_date
+             FROM join_requests jr
+             JOIN käyttäjä u ON jr.käyttäjä_id = u.id
+             WHERE jr.ryhmä_id = $1 AND jr.status = 'pending'`,
+            [groupId]
+        );
+
+        res.status(200).json(requests.rows);
+    } catch (error) {
+        console.error('Error fetching join requests:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.post('/groups/requests/respond', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token);
+        const { requestId, status } = req.body;
+
+        if (!['approved', 'rejected'].includes(status)) {
+            return res.status(400).json({ error: 'Invalid status. Must be "approved" or "rejected".' });
+        }
+
+        // Fetch the join request and ensure the user is the group creator
+        const request = await pool.query(
+            `SELECT jr.*, g.creator_id FROM join_requests jr
+             JOIN ryhmät g ON jr.ryhmä_id = g.id
+             WHERE jr.id = $1`,
+            [requestId]
+        );
+
+        if (request.rows.length === 0) {
+            return res.status(404).json({ error: 'Join request not found.' });
+        }
+
+        const { creator_id, ryhmä_id, käyttäjä_id } = request.rows[0];
+
+        if (creator_id !== decoded.id) {
+            return res.status(403).json({ error: 'You are not authorized to respond to this request.' });
+        }
+
+        // Update the request status
+        await pool.query(`UPDATE join_requests SET status = $1 WHERE id = $2`, [status, requestId]);
+
+        // If approved, add the user to the group
+        if (status === 'approved') {
+            await pool.query(`INSERT INTO ryhmän_jäsenet (ryhmä_id, käyttäjä_id) VALUES ($1, $2)`, [ryhmä_id, käyttäjä_id]);
+        }
+
+        res.status(200).json({ message: `Request ${status} successfully.` });
+    } catch (error) {
+        console.error('Error responding to join request:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.get('/groups/:id', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized. No token provided.' });
+    }
+
+    try {
+        const decoded = verifyToken(token); // Decode the token to get the user ID
+        const { id } = req.params;
+
+        // Fetch group details
+        const groupResult = await pool.query(`SELECT * FROM ryhmät WHERE id = $1`, [id]);
+        if (groupResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Group not found.' });
+        }
+
+        const group = groupResult.rows[0];
+
+        // If the user is the group creator, fetch pending join requests
+        let pendingRequests = [];
+        if (group.creator_id === decoded.id) {
+            const requestsResult = await pool.query(
+                `SELECT jr.id AS request_id, u.käyttäjänimi, u.sähköposti, jr.request_date
+                 FROM join_requests jr
+                 JOIN käyttäjä u ON jr.käyttäjä_id = u.id
+                 WHERE jr.ryhmä_id = $1 AND jr.status = 'pending'`,
+                [id]
+            );
+            pendingRequests = requestsResult.rows;
+        }
+
+        res.status(200).json({ group, pendingRequests });
+    } catch (error) {
+        console.error('Error fetching group details:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
 // Start server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

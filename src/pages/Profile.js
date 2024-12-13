@@ -150,10 +150,10 @@ const Profile = () => {
           <p>First Name: {profile.etunimi}</p>
           <p>Last Name: {profile.sukunimi}</p>
           <button className="logout-button" onClick={handleLogout}>
-            Log Out
+            Kirjaudu Ulos
           </button>
           <button onClick={handleDeleteAccount} className="delete-button">
-            Delete Account
+            Poista käyttäjätili
           </button>
 
           {/* Suosikkielokuvien osio */}

@@ -26,6 +26,9 @@ describe('POST task',() => {
         expect(data).to.be.an('object');
         expect(data).to.include.all.keys('id');
 
+    })
+})
+
 describe('POST käyttäjä',() => {
     it ('should post a käyttäjä',async() => {
         const response = await fetch('http://localhost:3001/create',{
