@@ -41,3 +41,11 @@ CREATE TABLE  suosikit (
     release_date VARCHAR(10),
     UNIQUE(user_id, movie_id)
 );
+
+CREATE TABLE join_requests (
+    id SERIAL PRIMARY KEY,
+    ryhmä_id INT NOT NULL REFERENCES ryhmät(id) ON DELETE CASCADE,
+    käyttäjä_id INT NOT NULL REFERENCES käyttäjä(id) ON DELETE CASCADE,
+    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'pending' -- 'pending', 'approved', 'rejected'
+);
