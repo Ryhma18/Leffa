@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import ToggleSwitch from "./ToggleSwitch"; 
+import ToggleSwitch from "./ToggleSwitch"; // Import the ToggleSwitch component
 import "./App.css";
 import "./styles.css";
 
-
+// Other components
 import Movies from "./pages/Movies";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -164,7 +164,6 @@ function App() {
       document.body.classList.remove("dark");
     }
   }, [darkMode]);
-  
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -206,7 +205,7 @@ function App() {
             </Link>
           </nav>
 
-          {/* Tumma tilan kytkin */}
+          {/* Dark Mode Toggle Button */}
           <ToggleSwitch onToggle={toggleDarkMode} />
         </header>
 

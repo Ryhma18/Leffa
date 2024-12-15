@@ -1,70 +1,73 @@
-# Getting Started with Create React App
+[Viikkopalaveri 19.11.2024.txt](https://github.com/user-attachments/files/18141983/Viikkopalaveri.19.11.2024.txt)### `Luokkakaavio`
+![tietokanta_kuva,](https://github.com/user-attachments/assets/e48e05b7-8a1e-419e-8163-9faeefbe1919)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
 
-In the project directory, you can run:
+### `Käyttöliittymäsuunnitelma`
+https://app.moqups.com/38xhtKSrL03YK7ESTQ9P1VzaOWill6VR/view/page/a548ed0f8
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### `Rest-Dokumentaatio`
+https://documenter.getpostman.com/view/34234158/2sAYHzFhRh
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+Viikkopalaveri 12.11.2024
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Tänään Ti 12.11.2024
+- Ui valmiiksi
+- Tietokantakaavio
+- Sprintit githubiin
+- Backlog
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Ke 13.11.2024 - To 14.11.2024 
+-Käyttöliittymä
+-Tuotteen kehitysjonon ensimmäinen versio
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Pe 15.12 - Ti 19.12.24
+- Näytösajat
+- Haku 
+- muuta jos aikaa jää
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Viikkopalaveri 19.11.2024
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Todo
+-Sprint board
+-Käyttöliittymän
+-Backlog
+-Projektin hallinta
+-GitHub ajan tasalla
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Viikkopalaveri 26.11.2024 
+ 
+Suosikkilista tehdä, että käyttäjä voi listata omia suosikikki elokuvia
+ja myös jakaa suosikki listansa linkin avulla. 
 
-## Learn More
+Rekisteröinti ja kirjautuminen yhdisää/testata
+Käyttäjän poistaminen lisätä koodiin
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Viikkopalaveri Pe 13.12.2024
 
-### Code Splitting
+- Ryhmät loppuuun --Joel	
+- Suosikkilistaus loppuun --Saku
+- Ryhmäsivun kustomointi vaiheessa --jouni
+- Vapaavalintainen ominaisuus- Dark mode fixxailla loppuun --Saku
+- Sivuston julkaisu --Saku jos jää aikaa
+- REST-dokumentaatio --Joel	
+- Kehitysjonon hallinta --Saku
+- Versionhallinta --Saku
+- Projektin hallinta (yhteistyö, aikataulujen noudattaminen,
+omien tehtävien hoitaminen projektin jäsenenä)
+- Projekti tiedostojen viimeistely --Saku	
+- Tuntipäiväkirja --Kaikki
+- Projektin esittely --Saku
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-### Analyzing the Bundle Size
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-### Making a Progressive Web App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

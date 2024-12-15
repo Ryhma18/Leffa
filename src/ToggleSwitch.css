@@ -1,4 +1,4 @@
-
+/* Toggle-napin perusmuoto */
 .toggle-switch {
     position: fixed;
     top: 55px;
@@ -35,19 +35,19 @@
   }
   
   .toggle-switch-inner.on {
-    background-color: #333; 
+    background-color: #333; /* Dark mode */
   }
   
   .toggle-switch-circle.on {
-    transform: translateX(30px); 
+    transform: translateX(30px); /* Siirtää ympyrän oikealle dark mode -tilassa */
   }
   
   .toggle-switch-inner.off {
-    background-color: #ddd; 
+    background-color: #ddd; /* Light mode */
   }
   
   .toggle-switch-circle.off {
-    transform: translateX(0); 
+    transform: translateX(0); /* Siirtää ympyrän vasemmalle light mode -tilassa */
   }
   
   .icon {
@@ -58,17 +58,17 @@
   }
   
   body.dark-mode {
-    background-color: #333; 
+    background-color: #333; /* Tumman teeman taustaväri */
     color: white;
   }
   
- 
+  /* Lisätyylit iconille */
   .icon {
     font-size: 18px;
     color: #333;
   }
   
-  
+  /* Aurinko ja kuu ikoneille */
   .icon .fa-sun {
     color: yellow;
   }

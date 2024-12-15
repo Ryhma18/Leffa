@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { FaSun, FaMoon } from "react-icons/fa"; 
-import "./ToggleSwitch.css"; 
+import { FaSun, FaMoon } from "react-icons/fa"; // Import from 'react-icons/fa'
+import "./ToggleSwitch.css"; // Link to the CSS file for the toggle switch styling
 
 const ToggleSwitch = ({ onToggle }) => {
   const [isOn, setIsOn] = useState(false);
 
   const handleToggle = () => {
     setIsOn(!isOn);
-    onToggle(!isOn); 
+    onToggle(!isOn); // Pass the state to the parent component (useful for global theme change)
   };
 
   return (
