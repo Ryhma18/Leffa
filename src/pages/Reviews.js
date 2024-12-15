@@ -35,7 +35,7 @@ const Reviews = () => {
                 
                 <div className='review-card h2'>Käyttäjänimi: {item.käyttäjänimi}</div>
                 
-                <div className='review-card h2'>Luomispäivä: {item.luomispäivä}</div>
+                <div className='review-card h2'>Luomispäivä: {new Date(item.luomispäivä).toLocaleDateString()}</div>
                 
               </li>
             ))
