@@ -9,16 +9,15 @@ import { verifyTokenMiddleware } from "./utility/verifyToken.js";
 const { Pool } = pkg;
 const port = 3001;
 
-// Initialize Express app
 const app = express();
 
-// Use middleware
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Initialize PostgreSQL Pool
+
 const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
@@ -27,7 +26,7 @@ const pool = new Pool({
     port: 5433,
 });
 
-// Test database connection
+
 const testConnection = async () => {
     try {
         const res = await pool.query('SELECT NOW()');
@@ -38,7 +37,7 @@ const testConnection = async () => {
 };
 testConnection();
 
-// Authentication middleware
+
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
@@ -56,7 +55,7 @@ const authenticateToken = (req, res, next) => {
     }
 };
 
-// User registration
+
 app.post('/create', async (req, res) => {
     const { etunimi, sukunimi, salasana, sähköposti, käyttäjänimi, syntymäpäivä } = req.body;
 
@@ -83,7 +82,7 @@ app.post('/create', async (req, res) => {
 
 
 
-// User login
+
 app.post('/login', async (req, res) => {
     const { käyttäjänimi, salasana } = req.body;
 
@@ -103,12 +102,12 @@ app.post('/login', async (req, res) => {
 
         const user = result.rows[0];
 
-        // Check password directly without bcrypt (using plain text comparison)
+        
         if (salasana.trim() !== user.salasana) {
             return res.status(401).send({ error: 'Invalid username or password' });
         }
 
-        // Generate a token using JWT
+        
         const token = jwt.sign(
             { id: user.id, käyttäjänimi: user.käyttäjänimi },
             "your_secret_key",
@@ -122,7 +121,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Profile route (only accessible with token)
+
 app.get('/profile', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
@@ -141,7 +140,7 @@ app.get('/profile', authenticateToken, async (req, res) => {
     }
 });
 
-// Favorites routes
+
 app.post('/suosikit', authenticateToken, async (req, res) => {
     const { movie_id, title, poster_path, release_date } = req.body;
 
@@ -167,7 +166,7 @@ app.post('/suosikit', authenticateToken, async (req, res) => {
     }
 });
 
-// Fetch user favorites
+
 app.get('/suosikit', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
@@ -182,7 +181,7 @@ app.get('/suosikit', authenticateToken, async (req, res) => {
     }
 });
 
-// Delete favorite movie
+
 app.delete('/suosikit/:movie_id', authenticateToken, async (req, res) => {
     const { movie_id } = req.params;
 
@@ -207,8 +206,8 @@ app.get('/profile/:userId/favorites', async (req, res) => {
     const { userId } = req.params;
   
     try {
-      // Query database for the user's favorite movies
-      const favorites = await pool.query( // Muutettu db.query pool.query:ksi
+      
+      const favorites = await pool.query( 
         'SELECT * FROM suosikit WHERE user_id = $1',
         [userId]
       );
@@ -225,7 +224,7 @@ app.get('/profile/:userId/favorites', async (req, res) => {
 });
 
 
-// Review routes
+
 app.get('/review', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM arvostelu');
@@ -250,7 +249,7 @@ app.post('/create/review', async (req, res) => {
 });
 
 
-// Delete user account
+
 app.delete("/delete", async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
@@ -258,7 +257,7 @@ app.delete("/delete", async (req, res) => {
     }
 
     try {
-        const decoded = verifyToken(token); // Decode the token to get the user's ID
+        const decoded = verifyToken(token); 
 
         const result = await pool.query(
             "DELETE FROM käyttäjä WHERE id = $1 RETURNING *",
@@ -276,10 +275,10 @@ app.delete("/delete", async (req, res) => {
     }
 });
 
-// Grouplist endpoint
+
 app.get('/groups', async (req, res) => {
     try {
-        // Fetch all groups from the `ryhmät` table
+        
         const result = await pool.query(
             'SELECT id, nimi, kuvaus, luomispäivä FROM ryhmät'
         ); 
@@ -291,7 +290,7 @@ app.get('/groups', async (req, res) => {
     }
 }); 
 
-// Create group endpoint
+
 app.post('/groups/create', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -300,14 +299,14 @@ app.post('/groups/create', async (req, res) => {
     }
 
     try {
-        const decoded = verifyToken(token); // Decode the token to get the user ID
+        const decoded = verifyToken(token); 
         const { nimi, kuvaus } = req.body;
 
         if (!nimi || !kuvaus) {
             return res.status(400).json({ error: 'Group name and description are required.' });
         }
 
-        // Create the group and get its ID
+       
         const groupResult = await pool.query(
             `INSERT INTO ryhmät (nimi, kuvaus, luomispäivä, creator_id)
              VALUES ($1, $2, CURRENT_DATE, $3) RETURNING id`,
@@ -316,7 +315,7 @@ app.post('/groups/create', async (req, res) => {
 
         const groupId = groupResult.rows[0].id;
 
-        // Add the creator as a member of the group
+        
         await pool.query(
             `INSERT INTO ryhmän_jäsenet (ryhmä_id, käyttäjä_id)
              VALUES ($1, $2)`,
@@ -333,7 +332,7 @@ app.post('/groups/create', async (req, res) => {
     }
 }); 
 
-// Join group endpoint
+
 app.post('/groups/join', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -342,14 +341,14 @@ app.post('/groups/join', async (req, res) => {
     }
 
     try {
-        const decoded = verifyToken(token); // Decode the token to get the user ID
+        const decoded = verifyToken(token); 
         const { ryhmä_id } = req.body;
 
         if (!ryhmä_id) {
             return res.status(400).json({ error: 'Group ID is required.' });
         }
 
-        // Check if the user is already a member of the group
+       
         const checkMembership = await pool.query(
             `SELECT * FROM ryhmän_jäsenet WHERE ryhmä_id = $1 AND käyttäjä_id = $2`,
             [ryhmä_id, decoded.id]
@@ -359,7 +358,7 @@ app.post('/groups/join', async (req, res) => {
             return res.status(400).json({ error: 'Olet jo tämän ryhmän jäsen.' });
         }
 
-        // Add the user to the group
+       
         await pool.query(
             `INSERT INTO ryhmän_jäsenet (ryhmä_id, käyttäjä_id) VALUES ($1, $2)`,
             [ryhmä_id, decoded.id]
@@ -380,7 +379,7 @@ app.get('/groups/mine', async (req, res) => {
     }
 
     try {
-        const decoded = verifyToken(token); // Decode the token to get the user ID
+        const decoded = verifyToken(token);
 
         const result = await pool.query(
             `SELECT g.id, g.nimi, g.kuvaus, g.luomispäivä
@@ -402,11 +401,11 @@ app.get('/groups/mine', async (req, res) => {
 });
 
 app.post('/groups/request-join', verifyTokenMiddleware, async (req, res) => {
-    const { ryhmä_id } = req.body; // Group ID from the request body
-    const userId = req.user.id; // User ID from the decoded token
+    const { ryhmä_id } = req.body; 
+    const userId = req.user.id; 
 
     try {
-        // Check if the user is already a member of the group
+        
         const isMember = await pool.query(
             "SELECT * FROM ryhmän_jäsenet WHERE käyttäjä_id = $1 AND ryhmä_id = $2",
             [userId, ryhmä_id]
@@ -416,7 +415,7 @@ app.post('/groups/request-join', verifyTokenMiddleware, async (req, res) => {
             return res.status(400).json({ error: "Olet jo tämän ryhmän jäsen." });
         }
 
-        // Check if the user already has a pending join request for this group
+        
         const existingRequest = await pool.query(
             "SELECT * FROM join_requests WHERE käyttäjä_id = $1 AND ryhmä_id = $2 AND status = 'pending'",
             [userId, ryhmä_id]
@@ -426,7 +425,7 @@ app.post('/groups/request-join', verifyTokenMiddleware, async (req, res) => {
             return res.status(400).json({ error: "Olet jo lähettänyt liittymispyynnön tähän ryhmään." });
         }
 
-        // Insert the join request into the database
+        
         await pool.query(
             "INSERT INTO join_requests (käyttäjä_id, ryhmä_id, status, request_date) VALUES ($1, $2, 'pending', CURRENT_TIMESTAMP)",
             [userId, ryhmä_id]
@@ -450,14 +449,14 @@ app.get('/groups/requests/:groupId', async (req, res) => {
         const decoded = verifyToken(token);
         const { groupId } = req.params;
 
-        // Check if the logged-in user is the creator of the group
+        
         const group = await pool.query(`SELECT * FROM ryhmät WHERE id = $1 AND creator_id = $2`, [groupId, decoded.id]);
 
         if (group.rows.length === 0) {
             return res.status(403).json({ error: 'Et ole tämän ryhmän luoja.' });
         }
 
-        // Fetch pending join requests for the group
+        
         const requests = await pool.query(
             `SELECT jr.id, u.käyttäjänimi, u.sähköposti, jr.request_date
              FROM join_requests jr
@@ -488,7 +487,7 @@ app.post('/groups/requests/respond', async (req, res) => {
             return res.status(400).json({ error: 'Invalid status. Must be "approved" or "rejected".' });
         }
 
-        // Fetch the join request
+       
         const request = await pool.query(
             `SELECT jr.*, g.creator_id FROM join_requests jr
              JOIN ryhmät g ON jr.ryhmä_id = g.id
@@ -506,10 +505,10 @@ app.post('/groups/requests/respond', async (req, res) => {
             return res.status(403).json({ error: 'Sinulla ei ole oikeuksia käsitellä tätä pyyntöä' });
         }
 
-        // Update the request status
+       
         await pool.query(`UPDATE join_requests SET status = $1 WHERE id = $2`, [status, requestId]);
 
-        // If approved, add the user to the group
+      
         if (status === 'approved') {
             await pool.query(`INSERT INTO ryhmän_jäsenet (ryhmä_id, käyttäjä_id) VALUES ($1, $2)`, [ryhmä_id, käyttäjä_id]);
         }
@@ -530,21 +529,21 @@ app.get('/groups/:id', async (req, res) => {
     }
 
     try {
-        const decoded = verifyToken(token); // Decode the token to get the user ID
-        console.log('Decoded Token:', decoded); // Debug the token
+        const decoded = verifyToken(token); 
+        console.log('Decoded Token:', decoded); 
 
         const { id } = req.params;
 
-        // Fetch group details
+       
         const groupResult = await pool.query(`SELECT * FROM ryhmät WHERE id = $1`, [id]);
         if (groupResult.rows.length === 0) {
             return res.status(404).json({ error: 'Group not found.' });
         }
 
         const group = groupResult.rows[0];
-        console.log('Group Details:', group); // Debug the group details
+        console.log('Group Details:', group); 
 
-        // If the user is the group creator, fetch pending join requests
+       
         let pendingRequests = [];
         if (parseInt(group.creator_id, 10) === parseInt(decoded.id, 10)) {
             const requestsResult = await pool.query(
@@ -555,7 +554,7 @@ app.get('/groups/:id', async (req, res) => {
                 [id]
             );
             pendingRequests = requestsResult.rows;
-            console.log('Pending Requests:', pendingRequests); // Debug pending requests
+            console.log('Pending Requests:', pendingRequests); 
         }
 
         res.status(200).json({ group, pendingRequests });
@@ -597,7 +596,7 @@ app.delete('/groups/:groupId/remove-member', async (req, res) => {
     try {
         const decoded = verifyToken(token);
 
-        // Fetch the group to verify the creator
+        
         const groupResult = await pool.query("SELECT * FROM ryhmät WHERE id = $1", [groupId]);
         if (groupResult.rows.length === 0) {
             return res.status(404).json({ error: "Group not found." });
@@ -608,7 +607,7 @@ app.delete('/groups/:groupId/remove-member', async (req, res) => {
             return res.status(403).json({ error: "You are not authorized to remove members from this group." });
         }
 
-        // Remove the user from the group
+        
         await pool.query("DELETE FROM ryhmän_jäsenet WHERE käyttäjä_id = $1 AND ryhmä_id = $2", [userId, groupId]);
 
         res.status(200).json({ message: "Member removed successfully." });
@@ -620,10 +619,10 @@ app.delete('/groups/:groupId/remove-member', async (req, res) => {
 
 app.delete('/groups/:groupId/leave', verifyTokenMiddleware, async (req, res) => {
     const { groupId } = req.params;
-    const userId = req.user.id; // Extract the logged-in user ID from the token
+    const userId = req.user.id; 
 
     try {
-        // Check if the user is a member of the group
+        
         const membershipResult = await pool.query(
             "SELECT * FROM ryhmän_jäsenet WHERE käyttäjä_id = $1 AND ryhmä_id = $2",
             [userId, groupId]
@@ -633,7 +632,7 @@ app.delete('/groups/:groupId/leave', verifyTokenMiddleware, async (req, res) => 
             return res.status(404).json({ error: "Et ole tämän ryhmän jäsen." });
         }
 
-        // Delete the user's membership in the group
+        
         await pool.query(
             "DELETE FROM ryhmän_jäsenet WHERE käyttäjä_id = $1 AND ryhmä_id = $2",
             [userId, groupId]
@@ -647,11 +646,11 @@ app.delete('/groups/:groupId/leave', verifyTokenMiddleware, async (req, res) => 
 });
 
 app.delete('/groups/:id', verifyTokenMiddleware, async (req, res) => {
-    const { id } = req.params; // Group ID
-    const userId = req.user.id; // Logged-in user's ID from the token
+    const { id } = req.params; 
+    const userId = req.user.id; 
 
     try {
-        // Check if the group exists and fetch the group details
+        
         const groupResult = await pool.query("SELECT * FROM ryhmät WHERE id = $1", [id]);
 
         if (groupResult.rows.length === 0) {
@@ -660,12 +659,12 @@ app.delete('/groups/:id', verifyTokenMiddleware, async (req, res) => {
 
         const group = groupResult.rows[0];
 
-        // Check if the logged-in user is the creator of the group
+        
         if (group.creator_id !== userId) {
             return res.status(403).json({ error: "You are not authorized to delete this group." });
         }
 
-        // Delete the group (cascade deletion will take care of related data)
+       
         await pool.query("DELETE FROM ryhmät WHERE id = $1", [id]);
 
         res.status(200).json({ message: "Ryhmän poistaminen onnistui." });
@@ -677,7 +676,7 @@ app.delete('/groups/:id', verifyTokenMiddleware, async (req, res) => {
 
 
 
-// Lisää tämä koodi Express-sovellukseen (server.js tai app.js)
+
 
 app.get('/suosikit/:userId', verifyTokenMiddleware, async (req, res) => {
   const { userId } = req.params;
@@ -692,7 +691,7 @@ app.get('/suosikit/:userId', verifyTokenMiddleware, async (req, res) => {
       return res.status(404).json({ message: 'No favorites found for this user.' });
     }
 
-    // Muodosta URL-jakamista varten
+   
     const favoriteMovies = result.rows.map((row) => ({
       movie_id: row.movie_id,
       title: row.title,
@@ -700,13 +699,13 @@ app.get('/suosikit/:userId', verifyTokenMiddleware, async (req, res) => {
       release_date: row.release_date,
     }));
 
-    // Luo URL, jossa on käyttäjän suosikkielokuvat
+    
     const favoriteListUrl = `http://localhost:3000/profile/${userId}/favorites`;
 
     res.status(200).json({
       message: 'Favorites retrieved successfully.',
       data: favoriteMovies,
-      shareableUrl: favoriteListUrl,  // URL jakamiseen
+      shareableUrl: favoriteListUrl,  
     });
   } catch (error) {
     console.error('Error fetching favorites:', error);
@@ -715,7 +714,88 @@ app.get('/suosikit/:userId', verifyTokenMiddleware, async (req, res) => {
 });
 
 
-// Start server
+app.post('/elokuva', authenticateToken, async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    const { movie_id, title, poster_path, release_date } = req.body;
+
+    if (!movie_id || !title) {
+        return res.status(400).send({ error: "Missing movie details" });
+    }
+
+    try {
+        const decoded = verifyToken(token);
+        
+        
+        const groupid = await pool.query(
+            'SELECT ryhmä_id FROM ryhmän_jäsenet WHERE käyttäjä_id = $1',
+            [decoded.id]
+        );
+
+        
+        if (groupid.rows.length === 0) {
+            return res.status(404).send({ error: "User does not belong to any group" });
+        }
+
+        const jtn = groupid.rows[0].ryhmä_id;  
+
+        
+        const result = await pool.query(
+            `INSERT INTO elokuva (user_id, ryhmä_id, movie_id, title, poster_path, release_date)
+             VALUES ($1, $2, $3, $4, $5, $6) 
+             ON CONFLICT (user_id, ryhmä_id, movie_id) DO NOTHING 
+             RETURNING *`, 
+            [req.user.id, jtn, movie_id, title, poster_path, release_date]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(200).send({ message: "Movie already in group" });
+        }
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error adding movie:', error.stack);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
+
+app.get('/elokuva', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT movie_id, title, poster_path, release_date 
+             FROM elokuva WHERE user_id = $1`,
+            [req.user.id]
+        );
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching movies:', error.stack);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
+
+app.delete('/elokuva/:movie_id', authenticateToken, async (req, res) => {
+    const { movie_id } = req.params;
+
+    try {
+        const result = await pool.query(
+            `DELETE FROM elokuva WHERE user_id = $1 AND movie_id = $2`,
+            [req.user.id, movie_id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).send({ message: "Movie not found in group" });
+        }
+
+        res.status(200).send({ message: "Movie removed from group" });
+    } catch (error) {
+        console.error('Error removing movie:', error.stack);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
+
+
+
+
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 }); 

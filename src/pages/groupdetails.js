@@ -5,7 +5,7 @@ import "./styles.css";
 import { jwtDecode } from "jwt-decode";
 
 const GroupDetails = () => {
-    const { id } = useParams(); // Get group ID from URL
+    const { id } = useParams();
     const [group, setGroup] = useState(null);
     const [pendingRequests, setPendingRequests] = useState([]);
     const [message, setMessage] = useState("");
@@ -13,13 +13,13 @@ const GroupDetails = () => {
     const token = localStorage.getItem("token");
     const [Movies, setMovies] = useState([]);
 
-        // Debugging: Log the token
+        
         console.log("Token retrieved from localStorage:", token);
 
-        // Decode the token to retrieve the user ID
+       
         const currentUserId = token ? jwtDecode(token).id : null;
     
-        // Debugging: Log the decoded token and user ID
+       
         if (token) {
             console.log("Decoded Token:", jwtDecode(token));
             console.log("Current User ID:", currentUserId);
@@ -29,7 +29,7 @@ const GroupDetails = () => {
     
         useEffect(() => {
             const fetchmovies = async () => {
-              const token = localStorage.getItem('token'); // Get token
+              const token = localStorage.getItem('token'); 
         
               if (!token) {
                 return;
@@ -38,7 +38,7 @@ const GroupDetails = () => {
               try {
                 const response = await axios.get('http://localhost:3001/elokuva', {
                   headers: {
-                    Authorization: `Bearer ${token}`, // Attach token
+                    Authorization: `Bearer ${token}`, 
                   },
                 });
                 setMovies(response.data);
@@ -51,7 +51,7 @@ const GroupDetails = () => {
           }, []);
           
           const handleRemoveMovie = async (movieId) => {
-            const token = localStorage.getItem('token'); // Get token
+            const token = localStorage.getItem('token'); 
         
             if (!token) {
               alert('You need to be logged in to remove  movies.');
@@ -66,7 +66,7 @@ const GroupDetails = () => {
                 },
               });
         
-              // Päivitä suosikkielokuvat tilassa
+              
               setMovies(Movies.filter(movie => movie.movie_id !== movieId));
             } catch (error) {
               console.error('Error removing  movie:', error.response?.data || error.message);
@@ -111,11 +111,11 @@ const GroupDetails = () => {
         try {
             const response = await axios.delete(`http://localhost:3001/groups/${group.id}/remove-member`, {
                 headers: { Authorization: `Bearer ${token}` },
-                data: { userId: memberId }, // Pass the user ID in the request body
+                data: { userId: memberId }, 
             });
     
             if (response.status === 200) {
-                // Update the list of group members
+               
                 setGroupMembers(groupMembers.filter((member) => member.id !== memberId));
                 alert("Member removed successfully.");
             }
@@ -161,7 +161,7 @@ const GroupDetails = () => {
     
             if (response.status === 200) {
                 alert(response.data.message);
-                window.location.href = "/grouplist"; // Redirect to the group list page
+                window.location.href = "/grouplist"; 
             }
         } catch (err) {
             console.error("Error leaving group:", err.response?.data || err.message);
@@ -187,7 +187,7 @@ const GroupDetails = () => {
     
             if (response.status === 200) {
                 alert(response.data.message);
-                window.location.href = "/grouplist"; // Redirect to the group list page
+                window.location.href = "/grouplist"; 
             }
         } catch (err) {
             console.error("Error deleting group:", err.response?.data || err.message);
@@ -207,7 +207,7 @@ const GroupDetails = () => {
     
             {message && <p className="message">{message}</p>}
     
-            {/* Pending Join Requests (only for group creator) */}
+          
             {pendingRequests.length > 0 && (
                 <div className="pending-requests">
                     <h2>Liittymispyynnöt</h2>
@@ -227,7 +227,7 @@ const GroupDetails = () => {
                 </div>
             )}
     
-            {/* Group Members Section */}
+          
             <div className="group-members">
                 <h2>Ryhmän jäsenet</h2>
                 {groupMembers.length > 0 ? (
@@ -251,16 +251,16 @@ const GroupDetails = () => {
                 )}
             </div>
     
-            {/* Group Actions at the Bottom */}
+           
             <div className="group-actions">
-                {/* Delete Group Button (only for creator) */}
+               
                 {group.creator_id === currentUserId && (
                     <button
                         className="delete-group-button"
                         onClick={() => handleDeleteGroup(group.id)}> Poista ryhmä </button>
                 )}
     
-                {/* Leave Group Button (for all members except the creator) */}
+              
                 {groupMembers.some((member) => member.id === currentUserId) && group.creator_id !== currentUserId && (
                     <button
                         className="leave-group-button"

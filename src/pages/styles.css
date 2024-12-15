@@ -12,9 +12,9 @@
 	width: 100%;
   max-width: 100%;
 	height: auto;
-	background: #FDCA00; /* Keltainen tausta */
+	background: #FDCA00; 
 	color: #232323;
-	border: 1px solid #232323; /* Musta reunus */
+	border: 1px solid #232323;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -27,11 +27,11 @@
 }
 
 .horizontal-menu-1 button {
-	flex: 110; /* Jakaa tilan tasaisesti */
+	flex: 110; 
   margin: 0 5px;
-	background: #FDCA00; /* Keltainen tausta */
-	color: #232323; /* Tekstin väri */
-	border: 2px solid #232323; /* Musta reunus jokaiselle napille */
+	background: #FDCA00; 
+	color: #232323; 
+	border: 2px solid #232323; 
 	font-size: 14px;
 	padding: 10px;
 	cursor: pointer;
@@ -41,7 +41,7 @@
 }
 
 .horizontal-menu-1 button:hover {
-	background-color: #E5B800; /* Tummempi keltainen hover-efekti */
+	background-color: #E5B800; 
 }
 
 
@@ -119,14 +119,14 @@
     background-color: #0056b3;
   }
   
-  /* Ruudukkoasettelu */
+
   .schedule-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
   }
   
-  /* Yksittäinen elokuvakortti */
+
   .schedule-item {
     display: flex;
     gap: 15px;
@@ -139,7 +139,7 @@
   
   .movie-image {
     width: 200px;
-    height: 275px; /* Voit säätää korkeuden sopivaksi */
+    height: 275px;
     object-fit: cover; 
     border-radius: 4px;
   }
@@ -161,28 +161,28 @@
   }
   
   
-  /* Hakupalkin tyylit */
+ 
 .search-container {
-    margin-top: 20px; /* Lisää yläreunaan tilaa */
+    margin-top: 20px; 
     display: flex;
     justify-content: center;
   }
   
   .search-1 {
-    width: 200px; /* Määrää hakupalkin leveyden */
-    height: 35px; /* Määrää hakupalkin korkeuden */
-    background-color: #ffffff; /* Valkoinen tausta */
-    color: #333; /* Tumma teksti */
-    border: 1px solid #232323; /* Musta reunus */
-    border-radius: 32px; /* Pyöristetyt kulmat */
-    padding-left: 15px; /* Sisennys vasemmalta */
-    font-family: "Helvetica", sans-serif; /* Helvetica fontti */
+    width: 200px; 
+    height: 35px; 
+    background-color: #ffffff; 
+    color: #333; 
+    border: 1px solid #232323; 
+    border-radius: 32px; 
+    padding-left: 15px; 
+    font-family: "Helvetica", sans-serif; 
     font-size: 14px;
   }
   
   .search-1:focus {
-    outline: none; /* Poistaa oletuskehykset, kun hakupalkki on valittuna */
-    border-color: #007BFF; /* Sininen reuna fokuksessa */
+    outline: none; 
+    border-color: #007BFF; 
   }
   body {
   font-family: Arial, sans-serif;
@@ -578,7 +578,7 @@ button:hover {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-/* Yleiset tyylit */
+
 body {
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
@@ -586,7 +586,7 @@ body {
   padding: 0;
 }
 
-/* Hakupalkki ja valintavaihtoehdot */
+
 .search-container {
   display: flex;
   justify-content: center;
@@ -610,7 +610,7 @@ body {
   border-radius: 5px;
 }
 
-/* Yleinen tyylitys hakupalkille ja suodattimille */
+
 .search-container {
   display: flex;
   justify-content: center;
@@ -619,7 +619,7 @@ body {
   padding: 10px;
 }
 
-/* Tyylit hakukentälle */
+
 .search-1, .search-year, .search-genre, .search-type {
   padding: 10px;
   font-size: 16px;
@@ -634,7 +634,7 @@ body {
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Tyylit valintaruuduille (dropdown) */
+
 .search-type, .search-genre {
   width: 180px;
   background-color: #f8f9fa;
@@ -646,13 +646,13 @@ body {
   padding: 10px;
 }
 
-/* Erityisesti julkaisuvuoden kenttä */
+
 .search-year {
   width: 150px;
   text-align: center;
 }
 
-/* Tyylit hakutulosten ja korttien säilyttämiseen */
+
 .results-container {
   text-align: center;
 }
@@ -676,7 +676,7 @@ body {
   transform: translateY(-10px);
 }
 
-/* Kortin sisällön tyylit */
+
 .result-card img {
   width: 100%;
   height: auto;
@@ -913,7 +913,7 @@ h1 {
   padding: 10px 15px;
   cursor: pointer;
   font-size: 1em;
-  margin-top: 10px; /* Add spacing above the button */
+  margin-top: 10px; 
 }
 
 .toggle-user-groups-button {
@@ -975,7 +975,7 @@ h1 {
 
 .delete-group-button,
 .leave-group-button {
-  background-color: #f44336; /* Red for delete */
+  background-color: #f44336; 
   color: white;
   border: none;
   border-radius: 5px;
@@ -986,15 +986,15 @@ h1 {
 }
 
 .leave-group-button {
-  background-color: #ffa500; /* Orange for leave */
+  background-color: #ffa500; 
 }
 
 .delete-group-button:hover {
-  background-color: #d32f2f; /* Darker red on hover */
+  background-color: #d32f2f; 
 }
 
 .leave-group-button:hover {
-  background-color: #ff8c00; /* Darker orange on hover */
+  background-color: #ff8c00; 
 }
 
 .group-list-container {
@@ -1006,7 +1006,7 @@ h1 {
   font-family: Arial, sans-serif;
 }
 
-/* Header section */
+
 .group-list-container .header {
   display: flex;
   justify-content: space-between;
@@ -1021,7 +1021,7 @@ h1 {
 
 .create-group-button,
 .toggle-user-groups-button {
-  background-color: #4CAF50; /* Green */
+  background-color: #4CAF50; 
   color: white;
   border: none;
   padding: 10px 20px;
@@ -1036,14 +1036,14 @@ h1 {
   background-color: #45a049;
 }
 
-/* Group list grid */
+
 .group-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
 }
 
-/* Group cards */
+
 .group-card {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -1059,7 +1059,7 @@ h1 {
 
 .group-card h2 {
   margin: 0 0 10px;
-  color: #4CAF50; /* Green title */
+  color: #4CAF50; 
 }
 
 .group-card p {
@@ -1068,7 +1068,7 @@ h1 {
 }
 
 .request-join-button {
-  background-color: #008CBA; /* Blue */
+  background-color: #008CBA; 
   color: white;
   border: none;
   padding: 8px 12px;

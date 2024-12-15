@@ -23,10 +23,10 @@ const GroupList = () => {
                 setError("Failed to load groups. Please try again later.");
             }
     
-            // Show login prompt if user is not logged in and it hasn't been shown
+            
             if (!isLoggedIn && !loginPromptShown) {
                 setPopupMessage("Sinun täytyy kirjautua sisään lähettääksesi liittymispyynnön.");
-                setLoginPromptShown(true); // Mark as shown
+                setLoginPromptShown(true); 
             }
         };
     

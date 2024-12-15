@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./styles.css"; // Lisää CSS-tiedosto
+import "./styles.css"; 
 
 const Showtimes = () => {
   const [selectedArea, setSelectedArea] = useState("");
@@ -34,10 +34,10 @@ const Showtimes = () => {
         const rating = show.getElementsByTagName("RatingLabel")[0]?.textContent || "Ei ikärajaa";
         const image = show.getElementsByTagName("Images")[0]?.getElementsByTagName("EventMediumImagePortrait")[0]?.textContent;
 
-        // Hakee salin tiedot TheatreAuditorium-tagista
+       
         const room = show.getElementsByTagName("TheatreAuditorium")[0]?.textContent || "Ei salia tietoa";
 
-        // Lisätyt kentät:
+       
         const showEnd = show.getElementsByTagName("dttmShowEnd")[0]?.textContent || "Ei päättymisaikaa";
         const productionYear = show.getElementsByTagName("ProductionYear")[0]?.textContent || "Ei tuotantovuotta";
         const length = show.getElementsByTagName("LengthInMinutes")[0]?.textContent || "Ei kestoa";
@@ -67,7 +67,7 @@ const Showtimes = () => {
 
   return (
     <div className="showtimes-container">
-      {/* Dropdown-valikot ja hakupainike */}
+   
       <div className="dropdown-container">
         <select
           className="dropdown"
@@ -93,7 +93,7 @@ const Showtimes = () => {
         </button>
       </div>
 
-      {/* Näytetään haetut näytöstiedot ruudukossa */}
+     
       <div className="schedule-grid">
         {schedule.length > 0 ? (
           schedule.map((show, index) => (

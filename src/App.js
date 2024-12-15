@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import ToggleSwitch from "./ToggleSwitch"; // Import the ToggleSwitch component
+import ToggleSwitch from "./ToggleSwitch"; 
 import "./App.css";
 import "./styles.css";
 
-// Muut komponentit
+
 import Movies from "./pages/Movies";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -35,7 +35,7 @@ const Home = () => {
     fetchShowtimes(today, "1002");
     fetchShowtimes(today, "1018");
 
-    // Päivitetään aika joka sekunti
+    
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
@@ -43,7 +43,7 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Haetaan näytökset Finnkino API:sta
+  // Haetaan näytökset Finnkino APIsta
   const fetchShowtimes = async (date, area) => {
     try {
       const formattedDate = new Date(date).toLocaleDateString("fi-FI");
@@ -59,7 +59,7 @@ const Home = () => {
         const title = show.getElementsByTagName("Title")[0]?.textContent;
         const time = show.getElementsByTagName("dttmShowStartUTC")[0]?.textContent;
         const theatre = show.getElementsByTagName("Theatre")[0]?.textContent;
-        const imageUrl = show.getElementsByTagName("ImageUrl")[0]?.textContent || "https://via.placeholder.com/150"; // Oletuskuva
+        const imageUrl = show.getElementsByTagName("ImageUrl")[0]?.textContent || "https://via.placeholder.com/150"; 
         const language =
           show.getElementsByTagName("SpokenLanguage")[0]?.getElementsByTagName("Name")[0]?.textContent || "Ei tietoa";
 
@@ -83,25 +83,25 @@ const Home = () => {
     }
   };
 
-  // Haetaan seuraava näytös
+  
   const getNextShow = (area) => {
     if (!showtimes[area] || showtimes[area].length === 0) return null;
 
     const currentDateTime = currentTime.toISOString();
 
     const upcomingShows = showtimes[area]
-      .filter((show) => new Date(show.time) > new Date(currentDateTime)) // Näytökset, jotka ovat tulevaisuudessa
-      .sort((a, b) => new Date(a.time) - new Date(b.time)); // Lajitellaan aikajärjestykseen
+      .filter((show) => new Date(show.time) > new Date(currentDateTime)) 
+      .sort((a, b) => new Date(a.time) - new Date(b.time)); 
 
     if (upcomingShows.length === 0) return null;
 
     return upcomingShows[0];
   };
 
-  // Laskee kuinka monta minuuttia seuraava näytös alkaa
+  
   const timeUntilNextShow = (nextShow) => {
     const timeDiff = new Date(nextShow.time) - currentTime;
-    return Math.floor(timeDiff / (1000 * 60)); // Muunnetaan millisekunnit minuuteiksi
+    return Math.floor(timeDiff / (1000 * 60)); 
   };
 
   return (

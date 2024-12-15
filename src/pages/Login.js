@@ -8,8 +8,8 @@ const Login = () => {
     salasana: "",
   });
 
-  const [message, setMessage] = useState(""); // To display success/error messages
-  const [loading, setLoading] = useState(false); // To manage loading state
+  const [message, setMessage] = useState(""); 
+  const [loading, setLoading] = useState(false); 
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -19,7 +19,7 @@ const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    setLoading(true); // Set loading state to true when submitting
+    setLoading(true); 
 
     console.log("Submitting formData:", formData);
 
@@ -31,20 +31,20 @@ const Login = () => {
 
       if (response.status === 200) {
         setMessage("Kirjautuminen onnistui!");
-        localStorage.setItem("token", response.data.token); // Save token to localStorage
-        window.location.href = "/profile"; // Redirect to profile page
+        localStorage.setItem("token", response.data.token); 
+        window.location.href = "/profile"; 
       }
     } catch (error) {
       console.error("Login failed", error.response || error.message);
       if (error.response) {
-        // If error has a response from the server
+        
         setMessage(error.response?.data?.message || "Virheellinen käyttäjätunnus tai salasana.");
       } else {
-        // If there is no response from the server
+        
         setMessage("Palvelimessa on ongelmia. Yritä myöhemmin uudelleen.");
       }
     } finally {
-      setLoading(false); // Set loading state to false after the request is completed
+      setLoading(false); 
     }
   };
 
@@ -65,7 +65,7 @@ const Login = () => {
             <input
               type="text"
               id="username"
-              name="käyttäjänimi" // Match with backend key
+              name="käyttäjänimi" 
               placeholder="Käyttäjätunnus"
               value={formData.käyttäjänimi}
               onChange={handleInputChange}
@@ -77,7 +77,7 @@ const Login = () => {
             <input
               type="password"
               id="password"
-              name="salasana" // Match with backend key
+              name="salasana" 
               placeholder="Salasana"
               value={formData.salasana}
               onChange={handleInputChange}
@@ -85,10 +85,10 @@ const Login = () => {
             />
           </div>
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? "Kirjaudutaan..." : "Kirjaudu"} {/* Show loading text when submitting */}
+            {loading ? "Kirjaudutaan..." : "Kirjaudu"} 
           </button>
         </form>
-        {message && <p className="message">{message}</p>} {/* Display messages */}
+        {message && <p className="message">{message}</p>} 
         <div className="register-link">
           <p>Eikö sinulla ole käyttäjätunnusta?</p>
           <a href="/register">Luo käyttäjätunnus</a>

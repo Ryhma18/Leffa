@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react'; // Import useState and useEffect
-import axios from 'axios'; // Import axios
+import React, { useState, useEffect } from 'react'; 
+import axios from 'axios'; 
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
-  const [favoriteMovies, setFavoriteMovies] = useState([]); // Tila suosikeille
+  const [favoriteMovies, setFavoriteMovies] = useState([]); 
   const [error, setError] = useState('');
   const [showPopup, setShowPopup] = useState(false);
 
   const closePopup = () => {
     setShowPopup(false);
-    window.location.href = '/login'; // Redirect to login
+    window.location.href = '/login'; 
   };
 
-  // Hae profiilin tiedot
+  
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem('token'); // Get token
+      const token = localStorage.getItem('token'); 
 
       if (!token) {
         setShowPopup(true);
@@ -26,15 +26,15 @@ const Profile = () => {
         console.log('Fetching profile...');
         const response = await axios.get('http://localhost:3001/profile', {
           headers: {
-            Authorization: `Bearer ${token}`, // Attach token
+            Authorization: `Bearer ${token}`, 
           },
         });
         console.log('Profile data:', response.data);
         setProfile(response.data);
       } catch (error) {
         console.error('Error fetching profile:', error.response?.data || error.message);
-        localStorage.removeItem('token'); // Clear invalid token
-        window.location.href = '/login'; // Redirect to login
+        localStorage.removeItem('token'); 
+        window.location.href = '/login'; 
         setShowPopup(true);
       }
     };
@@ -45,7 +45,7 @@ const Profile = () => {
   // Hae suosikit palvelimelta
   useEffect(() => {
     const fetchFavorites = async () => {
-      const token = localStorage.getItem('token'); // Get token
+      const token = localStorage.getItem('token'); 
 
       if (!token) {
         return;
@@ -54,7 +54,7 @@ const Profile = () => {
       try {
         const response = await axios.get('http://localhost:3001/suosikit', {
           headers: {
-            Authorization: `Bearer ${token}`, // Attach token
+            Authorization: `Bearer ${token}`, 
           },
         });
         setFavoriteMovies(response.data);
@@ -67,8 +67,8 @@ const Profile = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Clear the token
-    window.location.href = '/login'; // Redirect to login page
+    localStorage.removeItem('token'); 
+    window.location.href = '/login'; 
   };
 
   const handleDeleteAccount = async () => {
@@ -92,14 +92,14 @@ const Profile = () => {
       console.log('Sending delete request with token:', token);
       const response = await axios.delete('http://localhost:3001/delete', {
         headers: {
-          Authorization: `Bearer ${token}`, // Send token for authorization
+          Authorization: `Bearer ${token}`, 
         },
       });
 
       if (response.status === 200) {
         alert('Your account has been deleted.');
-        localStorage.clear(); // Clear stored user data
-        window.location.href = '/register'; // Redirect to registration or home page
+        localStorage.clear(); 
+        window.location.href = '/register'; 
       }
     } catch (error) {
       console.error('Error deleting account:', error.response?.data || error.message);
@@ -107,9 +107,9 @@ const Profile = () => {
     }
   };
 
-  // Poista suosikkielokuva
+  
   const handleRemoveFavorite = async (movieId) => {
-    const token = localStorage.getItem('token'); // Get token
+    const token = localStorage.getItem('token'); 
 
     if (!token) {
       alert('You need to be logged in to remove favorite movies.');
@@ -124,7 +124,7 @@ const Profile = () => {
         },
       });
 
-      // Päivitä suosikkielokuvat tilassa
+     
       setFavoriteMovies(favoriteMovies.filter(movie => movie.movie_id !== movieId));
     } catch (error) {
       console.error('Error removing favorite movie:', error.response?.data || error.message);
@@ -156,7 +156,7 @@ const Profile = () => {
             Poista käyttäjätili
           </button>
 
-          {/* Suosikkielokuvien osio */}
+          
           <div className="favorites-section">
             <h2>Your Favorite Movies</h2>
             {favoriteMovies.length > 0 ? (

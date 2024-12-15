@@ -14,7 +14,7 @@ const MoviesSearch = () => {
   const [elokuva, setElokuva] = useState([]);
   const apiKey = "23c2cd5829a1d7db4e98fee32fc45565"; // API-avain
 
-  // Hae genret, kun komponentti ladataan
+  
   useEffect(() => {
     const fetchGenres = async () => {
       try {
@@ -28,7 +28,7 @@ const MoviesSearch = () => {
     fetchGenres();
   }, []);
 
-  // Lataa suosikit localStoragesta
+  
   useEffect(() => {
     const storedSuosikit = localStorage.getItem("suosikit");
     if (storedSuosikit) {
@@ -36,7 +36,7 @@ const MoviesSearch = () => {
     }
   }, []);
 
-  // Päivitä localStorage aina, kun suosikit muuttuvat
+  
   useEffect(() => {
     localStorage.setItem("suosikit", JSON.stringify(suosikit));
   }, [suosikit]);
@@ -48,43 +48,43 @@ const MoviesSearch = () => {
     }
   }, []);
 
-  // Päivitä localStorage aina, kun suosikit muuttuvat
+  
   useEffect(() => {
     localStorage.setItem("elokuva", JSON.stringify(elokuva));
   }, [elokuva]);
 
-  // Hae elokuvia hakukriteerien perusteella
+  
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         let url;
 
-        // Jos hakukysely (nimi) on annettu, käytetään search/movie
+        
         if (searchQuery.trim()) {
           url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=fi-FI&query=${encodeURIComponent(searchQuery)}`;
         } else {
-          // Muussa tapauksessa käytetään discover/movie
+          
           url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=fi-FI`;
         }
 
-        // Lisää vuosi, jos on annettu
+        
         if (searchYear.trim()) {
           url += `&primary_release_year=${searchYear}`;
         }
 
-        // Lisää genre, jos on valittu
+        
         if (selectedGenre) {
           url += `&with_genres=${selectedGenre}`;
         }
 
-        // Lisää suosiojärjestys, jos se on valittu
+        
         if (sortByPopularity) {
-          url += `&sort_by=popularity.asc`; // Vähemmän suosituista ensin
+          url += `&sort_by=popularity.asc`; 
         } else {
-          url += `&sort_by=popularity.desc`; // Suosituimmat ensin
+          url += `&sort_by=popularity.desc`;
         }
 
-        // Hakukriteerit näyttelijälle
+      
         if (selectedActor.trim()) {
           const actorResponse = await axios.get(
             `https://api.themoviedb.org/3/search/person?api_key=${apiKey}&language=fi-FI&query=${encodeURIComponent(selectedActor)}`
@@ -96,7 +96,7 @@ const MoviesSearch = () => {
               `https://api.themoviedb.org/3/person/${actorId}/movie_credits?api_key=${apiKey}&language=fi-FI`
             );
             const actorMovies = movieCreditsResponse.data.cast;
-            setResults(actorMovies); // Asetetaan hakutulokset näyttelijän elokuvista
+            setResults(actorMovies); 
             return;
           } else {
             setResults([]);
@@ -104,7 +104,7 @@ const MoviesSearch = () => {
           }
         }
 
-        // Elokuvahaku
+     
         const response = await axios.get(url);
         setResults(response.data.results || []);
       } catch (error) {
@@ -115,7 +115,7 @@ const MoviesSearch = () => {
     fetchMovies();
   }, [searchQuery, searchYear, selectedGenre, sortByPopularity, selectedActor]);
 
-  // Funktio elokuvan lisäämiseksi suosikkeihin
+ 
   const addToSuosikit = async (movie) => {
     try {
       const token = localStorage.getItem("token");
@@ -142,7 +142,7 @@ const MoviesSearch = () => {
     }
   };
 
-  // Funktio elokuvan poistamiseksi suosikeista
+  
   const removeFromSuosikit = async (movieId) => {
     try {
       const token = localStorage.getItem("token");
@@ -154,6 +154,8 @@ const MoviesSearch = () => {
       console.error("Virhe poistettaessa suosikkia:", error);
     }
   };
+
+  
 
 
   const addTogroup = async (movie) => {
@@ -204,26 +206,26 @@ const MoviesSearch = () => {
           className="search-1"
           placeholder="Hae elokuvia nimellä... "
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)} // Elokuvan nimen muutos
+          onChange={(e) => setSearchQuery(e.target.value)} 
         />
         <input
           type="number"
           className="search-year"
           placeholder="Julkaisuvuosi (esim. 2020)..."
           value={searchYear}
-          onChange={(e) => setSearchYear(e.target.value)} // Vuoden muutos
+          onChange={(e) => setSearchYear(e.target.value)} 
         />
         <input
           type="text"
           className="search-actor"
           placeholder="Hae näyttelijän nimellä..."
           value={selectedActor}
-          onChange={(e) => setSelectedActor(e.target.value)} // Näyttelijän nimen muutos
+          onChange={(e) => setSelectedActor(e.target.value)} 
         />
         <select
           className="search-genre"
           value={selectedGenre}
-          onChange={(e) => setSelectedGenre(e.target.value)} // Genre-valinta
+          onChange={(e) => setSelectedGenre(e.target.value)} 
         >
           <option value="">Valitse genre</option>
           {genres.map((genre) => (
@@ -236,7 +238,7 @@ const MoviesSearch = () => {
           <input
             type="checkbox"
             checked={sortByPopularity}
-            onChange={(e) => setSortByPopularity(e.target.checked)} // Vähemmän suosituista ensin
+            onChange={(e) => setSortByPopularity(e.target.checked)} 
           />
           Ei niin suositut ensin
         </label>
@@ -262,7 +264,7 @@ const MoviesSearch = () => {
                 <p>Suosio: {result.popularity?.toFixed(1) || "Ei tietoa"}</p>
                 <button
                   onClick={() => addToSuosikit(result)}
-                  disabled={suosikit.some((fav) => fav.id === result.id)} // Estetään, jos elokuva on jo suosikeissa
+                  disabled={suosikit.some((fav) => fav.id === result.id)} 
                 >
                   {suosikit.some((fav) => fav.id === result.id) ? "Jo suosikissa" : "Lisää suosikkeihin"}
                 </button>
@@ -270,7 +272,7 @@ const MoviesSearch = () => {
                 <br></br>
                 <button
                   onClick={() => addTogroup(result)}
-                  disabled={elokuva.some((fav) => fav.id === result.id)} // Estetään, jos elokuva on jo suosikeissa
+                  disabled={elokuva.some((fav) => fav.id === result.id)} 
                 >
                   {elokuva.some((fav) => fav.id === result.id) ? "lisätty ryhmään" : "Lisää ryhmään"}
                 </button>
