@@ -23,6 +23,8 @@ const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
     database: 'elokuva',
+    password: 'Qwerty123',
+    port: 5433,
 });
 
 // Test database connection
@@ -78,6 +80,8 @@ app.post('/create', async (req, res) => {
         res.status(500).send({ error: 'Internal server error' });
     }
 });
+
+
 
 // User login
 app.post('/login', async (req, res) => {
@@ -198,6 +202,28 @@ app.delete('/suosikit/:movie_id', authenticateToken, async (req, res) => {
         res.status(500).send({ error: "Internal server error" });
     }
 });
+
+app.get('/profile/:userId/favorites', async (req, res) => {
+    const { userId } = req.params;
+  
+    try {
+      // Query database for the user's favorite movies
+      const favorites = await pool.query( // Muutettu db.query pool.query:ksi
+        'SELECT * FROM suosikit WHERE user_id = $1',
+        [userId]
+      );
+  
+      if (favorites.rows.length === 0) {
+        return res.status(404).json({ message: 'No favorites found.' });
+      }
+  
+      res.json(favorites.rows);
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+      res.status(500).json({ message: 'An error occurred' });
+    }
+});
+
 
 // Review routes
 app.get('/review', async (req, res) => {
@@ -648,6 +674,46 @@ app.delete('/groups/:id', verifyTokenMiddleware, async (req, res) => {
         res.status(500).json({ error: "Internal server error." });
     }
 }); 
+
+
+
+// Lisää tämä koodi Express-sovellukseen (server.js tai app.js)
+
+app.get('/suosikit/:userId', verifyTokenMiddleware, async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const result = await pool.query(
+      'SELECT * FROM suosikit WHERE user_id = $1',
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'No favorites found for this user.' });
+    }
+
+    // Muodosta URL-jakamista varten
+    const favoriteMovies = result.rows.map((row) => ({
+      movie_id: row.movie_id,
+      title: row.title,
+      poster_path: row.poster_path,
+      release_date: row.release_date,
+    }));
+
+    // Luo URL, jossa on käyttäjän suosikkielokuvat
+    const favoriteListUrl = `http://localhost:3000/profile/${userId}/favorites`;
+
+    res.status(200).json({
+      message: 'Favorites retrieved successfully.',
+      data: favoriteMovies,
+      shareableUrl: favoriteListUrl,  // URL jakamiseen
+    });
+  } catch (error) {
+    console.error('Error fetching favorites:', error);
+    res.status(500).json({ message: 'Error fetching favorites.' });
+  }
+});
+
 
 // Start server
 app.listen(port, () => {
