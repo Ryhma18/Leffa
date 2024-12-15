@@ -23,6 +23,8 @@ const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
     database: 'elokuva',
+    password: 'Qwerty123',
+    port: 5433,
 });
 
 // Test database connection
