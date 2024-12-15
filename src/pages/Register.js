@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./styles.css";
 import axios from "axios";
 
-const url = 'http://localhost:3001/'
+//const url = 'http://localhost:3001/'
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +17,7 @@ const Register = () => {
 
 const [showPopup, setShowPopup] = useState(false);
 const [popupMessage, setPopupMessage] = useState("");
-const [message, setMessage] = useState("");
+//const [message, setMessage] = useState("");
 const [passwordStatus, setPasswordStatus] = useState({
   message: "Salasanan on oltava vähintään 8 merkkiä, joista yksi on oltava iso kirjain ja yksi numero.",
   isValid: false,

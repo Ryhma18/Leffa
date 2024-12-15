@@ -22,7 +22,8 @@ create table ryhmät (
     id serial PRIMARY key,
     nimi VARCHAR(50) not null,
     kuvaus VARCHAR(50) not null,
-    luomispäivä date not null
+    luomispäivä date not null,
+    creator_id int not null
 );
 
 CREATE TABLE ryhmän_jäsenet (
@@ -40,6 +41,17 @@ CREATE TABLE  suosikit (
     poster_path VARCHAR(255),
     release_date VARCHAR(10),
     UNIQUE(user_id, movie_id)
+);
+
+CREATE TABLE  elokuva(
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES käyttäjä(id) ON DELETE CASCADE,
+    ryhmä_id INT NOT NULL REFERENCES ryhmät(id) ON DELETE CASCADE,
+    movie_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    poster_path VARCHAR(255),
+    release_date VARCHAR(10),
+    UNIQUE(user_id,ryhmä_id movie_id)
 );
 
 CREATE TABLE join_requests (

@@ -23,8 +23,8 @@ const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
     database: 'elokuva',
-    password: 'Qwerty123',
-    port: 5433,
+    password: 'root',
+    port: 5432,
 });
 
 // Test database connection
@@ -58,6 +58,7 @@ const authenticateToken = (req, res, next) => {
 
 // User registration
 app.post('/create', async (req, res) => {
+    
     const { etunimi, sukunimi, salasana, sähköposti, käyttäjänimi, syntymäpäivä } = req.body;
 
     if (!etunimi || !sukunimi || !salasana || !sähköposti || !käyttäjänimi || !syntymäpäivä) {
@@ -83,6 +84,7 @@ app.post('/create', async (req, res) => {
 
 // User login
 app.post('/login', async (req, res) => {
+    
     const { käyttäjänimi, salasana } = req.body;
 
     if (!käyttäjänimi || !salasana) {
@@ -108,7 +110,7 @@ app.post('/login', async (req, res) => {
 
         // Generate a token using JWT
         const token = jwt.sign(
-            { id: user.id, käyttäjänimi: user.käyttäjänimi },
+            { id: user.id, käyttäjänimi: user.käyttäjänimi},
             "your_secret_key",
             { expiresIn: "1h" }
         );
@@ -134,6 +136,7 @@ app.post('/logout', verifyTokenMiddleware, (req, res) => {
 // Profile route (only accessible with token)
 app.get('/profile', authenticateToken, async (req, res) => {
     try {
+        
         const result = await pool.query(
             'SELECT etunimi, sukunimi, sähköposti, käyttäjänimi FROM käyttäjä WHERE id = $1',
             [req.user.id]
@@ -150,8 +153,90 @@ app.get('/profile', authenticateToken, async (req, res) => {
     }
 });
 
+app.post('/elokuva', authenticateToken, async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    const { movie_id, title, poster_path, release_date } = req.body;
+
+    if (!movie_id || !title) {
+        return res.status(400).send({ error: "Missing movie details" });
+    }
+    
+
+
+    try {
+        const decoded = verifyToken(token);
+        const groupid = await pool.query(
+            'select ryhmä_id from ryhmän_jäsenet where käyttäjä_id = $1',
+            [decoded.id]
+            
+        );
+        console.log(groupid.rows)
+        const emt = JSON.stringify(groupid.rows)
+        console.log(emt)
+        const jtn = emt.split('')[13]
+        console.log(jtn)
+        
+        
+        const result = await pool.query(
+            `INSERT INTO elokuva (user_id, ryhmä_id, movie_id, title, poster_path, release_date)
+             VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id,ryhmä_id, movie_id) DO NOTHING RETURNING *`,
+            [req.user.id,jtn, movie_id, title, poster_path, release_date]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(200).send({ message: "Movie already in group" });
+        }
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error adding group:', error.stack);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
+
+app.get('/elokuva', authenticateToken, async (req, res) => {
+    try {
+        
+        const result = await pool.query(
+            `SELECT movie_id, title, poster_path, release_date 
+             FROM elokuva WHERE user_id = $1`,
+            [req.user.id]
+        );
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching elokuva:', error.stack);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
+
+
+app.delete('/elokuva/:movie_id', authenticateToken, async (req, res) => {
+    
+    const { movie_id } = req.params;
+
+    try {
+        
+        const result = await pool.query(
+            `DELETE FROM elokuva WHERE user_id = $1 AND movie_id = $2`,
+            [req.user.id, movie_id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).send({ message: "Movie not found in group" });
+        }
+
+        res.status(200).send({ message: "Movie removed from group" });
+    } catch (error) {
+        console.error('Error removing elokuva:', error.stack);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
+
+
+
 // Favorites routes
 app.post('/suosikit', authenticateToken, async (req, res) => {
+    
     const { movie_id, title, poster_path, release_date } = req.body;
 
     if (!movie_id || !title) {
@@ -159,6 +244,7 @@ app.post('/suosikit', authenticateToken, async (req, res) => {
     }
 
     try {
+        
         const result = await pool.query(
             `INSERT INTO suosikit (user_id, movie_id, title, poster_path, release_date)
              VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_id, movie_id) DO NOTHING RETURNING *`,
@@ -179,6 +265,7 @@ app.post('/suosikit', authenticateToken, async (req, res) => {
 // Fetch user favorites
 app.get('/suosikit', authenticateToken, async (req, res) => {
     try {
+        
         const result = await pool.query(
             `SELECT movie_id, title, poster_path, release_date 
              FROM suosikit WHERE user_id = $1`,
@@ -193,9 +280,11 @@ app.get('/suosikit', authenticateToken, async (req, res) => {
 
 // Delete favorite movie
 app.delete('/suosikit/:movie_id', authenticateToken, async (req, res) => {
+    
     const { movie_id } = req.params;
 
     try {
+        
         const result = await pool.query(
             `DELETE FROM suosikit WHERE user_id = $1 AND movie_id = $2`,
             [req.user.id, movie_id]
@@ -215,6 +304,7 @@ app.delete('/suosikit/:movie_id', authenticateToken, async (req, res) => {
 // Review routes
 app.get('/review', async (req, res) => {
     try {
+        
         const result = await pool.query('SELECT * FROM arvostelu');
         res.status(200).json(result.rows);
     } catch (error) {
@@ -223,12 +313,14 @@ app.get('/review', async (req, res) => {
 });
 
 app.post('/create/review', async (req, res) => {
-    const { pisteet, elokuva, kuvaus, käyttäjänimi, luomispäivä } = req.body;
+    
+    const { pisteet, elokuva, kuvaus, käyttäjänimi} = req.body;
 
     try {
+        
         const result = await pool.query(
-            'INSERT INTO arvostelu (pisteet, elokuva, kuvaus, käyttäjänimi, luomispäivä) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [pisteet, elokuva, kuvaus, käyttäjänimi, luomispäivä]
+            'INSERT INTO arvostelu (pisteet, elokuva, kuvaus, käyttäjänimi, luomispäivä) VALUES ($1, $2, $3, $4, CURRENT_DATE) RETURNING *',
+            [pisteet, elokuva, kuvaus, käyttäjänimi]
         );
         res.status(200).json(result.rows[0]);
     } catch (error) {
@@ -266,6 +358,7 @@ app.delete("/delete", async (req, res) => {
 // Grouplist endpoint
 app.get('/groups', async (req, res) => {
     try {
+       
         // Fetch all groups from the `ryhmät` table
         const result = await pool.query(
             'SELECT id, nimi, kuvaus, luomispäivä FROM ryhmät'
@@ -278,6 +371,7 @@ app.get('/groups', async (req, res) => {
     }
 }); 
 
+ 
 // Create group endpoint
 app.post('/groups/create', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];

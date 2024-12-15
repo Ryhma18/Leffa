@@ -11,6 +11,7 @@ const GroupDetails = () => {
     const [message, setMessage] = useState("");
     const [groupMembers, setGroupMembers] = useState([]);
     const token = localStorage.getItem("token");
+    const [Movies, setMovies] = useState([]);
 
         // Debugging: Log the token
         console.log("Token retrieved from localStorage:", token);
@@ -26,6 +27,52 @@ const GroupDetails = () => {
             console.error("No token found. User is not logged in.");
         }
     
+        useEffect(() => {
+            const fetchmovies = async () => {
+              const token = localStorage.getItem('token'); // Get token
+        
+              if (!token) {
+                return;
+              }
+        
+              try {
+                const response = await axios.get('http://localhost:3001/elokuva', {
+                  headers: {
+                    Authorization: `Bearer ${token}`, // Attach token
+                  },
+                });
+                setMovies(response.data);
+              } catch (error) {
+                console.error('Error fetching  movies:', error.response?.data || error.message);
+              }
+            };
+        
+            fetchmovies();
+          }, []);
+          
+          const handleRemoveMovie = async (movieId) => {
+            const token = localStorage.getItem('token'); // Get token
+        
+            if (!token) {
+              alert('You need to be logged in to remove  movies.');
+              return;
+            }
+        
+            try {
+              console.log(`Removing movie with ID: ${movieId}`);
+              await axios.delete(`http://localhost:3001/elokuva/${movieId}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+        
+              // Päivitä suosikkielokuvat tilassa
+              setMovies(Movies.filter(movie => movie.movie_id !== movieId));
+            } catch (error) {
+              console.error('Error removing  movie:', error.response?.data || error.message);
+              alert('Failed to remove  movie. Please try again.');
+            }
+          };  
 
     useEffect(() => {
         const fetchGroupDetails = async () => {
@@ -220,6 +267,34 @@ const GroupDetails = () => {
                         onClick={() => handleLeaveGroup(group.id)}> Poistu ryhmästä </button>
                 )}
             </div>
+                    <div className="favorites-section">
+                    <h2>Movies</h2>
+                    {Movies.length > 0 ? (
+                      <div className="favorites-scroll-container">
+                        {Movies.map((movie) => (
+                          <div className="favorite-card" key={movie.movie_id}>
+                            <img
+                              src={movie.poster_path
+                                ? `https://image.tmdb.org/t/p/w300/${movie.poster_path}`
+                                : 'https://via.placeholder.com/300x450?text=No+Image'
+                              }
+                              alt={movie.title}
+                            />
+                            <h3>{movie.title}</h3>
+                            <p>Release Year: {movie.release_date?.split('-')[0] || 'Unknown'}</p>
+                            <button onClick={() => handleRemoveMovie(movie.movie_id)}>
+                              Poista ryhmästä
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p>No movies added.</p>
+                    )}
+                  </div>
+            
+
+           
         </div>
     ); 
 }

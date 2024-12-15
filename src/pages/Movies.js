@@ -11,6 +11,7 @@ const MoviesSearch = () => {
   const [genres, setGenres] = useState([]); // Genret listalle
   const [sortByPopularity, setSortByPopularity] = useState(false); // Suosiojärjestys
   const [suosikit, setSuosikit] = useState([]); // Suosikkielokuvat
+  const [elokuva, setElokuva] = useState([]);
   const apiKey = "23c2cd5829a1d7db4e98fee32fc45565"; // API-avain
 
   // Hae genret, kun komponentti ladataan
@@ -39,6 +40,18 @@ const MoviesSearch = () => {
   useEffect(() => {
     localStorage.setItem("suosikit", JSON.stringify(suosikit));
   }, [suosikit]);
+
+  useEffect(() => {
+    const storedelokuva = localStorage.getItem("elokuva");
+    if (storedelokuva) {
+      setSuosikit(JSON.parse(storedelokuva));
+    }
+  }, []);
+
+  // Päivitä localStorage aina, kun suosikit muuttuvat
+  useEffect(() => {
+    localStorage.setItem("elokuva", JSON.stringify(elokuva));
+  }, [elokuva]);
 
   // Hae elokuvia hakukriteerien perusteella
   useEffect(() => {
@@ -142,6 +155,46 @@ const MoviesSearch = () => {
     }
   };
 
+
+  const addTogroup = async (movie) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:3001/elokuva",
+        {
+          movie_id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_path,
+          release_date: movie.release_date,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 201) {
+        setElokuva([...elokuva, movie]);
+      } else {
+        console.log("Elokuva on jo ryhmässä");
+      }
+    } catch (error) {
+      console.error("Virhe lisättäessä elokuvaa:", error);
+    }
+  };
+
+
+  const removeFromgroup = async (movieId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:3001/elokuva/${movieId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setElokuva(elokuva.filter((movie) => movie.id !== movieId));
+    } catch (error) {
+      console.error("Virhe poistettaessa elokuvaa:", error);
+    }
+  };
+
   return (
     <div className="movies-page">
       {/* Hakukentät */}
@@ -213,6 +266,14 @@ const MoviesSearch = () => {
                 >
                   {suosikit.some((fav) => fav.id === result.id) ? "Jo suosikissa" : "Lisää suosikkeihin"}
                 </button>
+                <br></br>
+                <br></br>
+                <button
+                  onClick={() => addTogroup(result)}
+                  disabled={elokuva.some((fav) => fav.id === result.id)} // Estetään, jos elokuva on jo suosikeissa
+                >
+                  {elokuva.some((fav) => fav.id === result.id) ? "lisätty ryhmään" : "Lisää ryhmään"}
+                </button>
               </div>
             ))
           ) : (
@@ -243,6 +304,30 @@ const MoviesSearch = () => {
             ))
           ) : (
             <p>Ei suosikkeja</p>
+          )}
+        </div>
+      </div>
+      <div className="suosikit-container">
+        <h2>elokuva</h2>
+        <div className="suosikit-grid">
+          {elokuva.length > 0 ? (
+            elokuva.map((movie) => (
+              <div className="suosikit-card" key={movie.id}>
+                <img
+                  src={
+                    movie.poster_path
+                      ? `https://image.tmdb.org/t/p/w300/${movie.poster_path}`
+                      : "https://via.placeholder.com/300x450?text=Ei+kuvaa"
+                  }
+                  alt={movie.title}
+                />
+                <h3>{movie.title}</h3>
+                <p>Julkaisuvuosi: {movie.release_date?.split("-")[0] || "Ei tietoa"}</p>
+                <button onClick={() => removeFromgroup(movie.id)}>Poista ryhmästä</button>
+              </div>
+            ))
+          ) : (
+            <p>Ei elokuvia</p>
           )}
         </div>
       </div>

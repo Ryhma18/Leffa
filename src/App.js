@@ -93,6 +93,7 @@ function App() {
           <Route path="/creategroup" element={<CreateGroup />} />
           <Route path="/managerequests/:groupId" element={<ManageRequests />} />
           <Route path="/groups/:id" element={<GroupDetails />} />
+          
 
         </Routes>
       </div>
