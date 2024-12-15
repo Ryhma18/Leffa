@@ -118,6 +118,17 @@ app.post('/login', async (req, res) => {
     }
 });
 
+const tokenBlacklist = new Set();
+
+app.post('/logout', verifyTokenMiddleware, (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+        tokenBlacklist.add(token);
+        return res.status(200).json({ message: "Logged out successfully." });
+    }
+    return res.status(400).json({ error: "No token provided." });
+});
+
 // Profile route (only accessible with token)
 app.get('/profile', authenticateToken, async (req, res) => {
     try {
