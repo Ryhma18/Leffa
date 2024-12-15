@@ -1,4 +1,4 @@
-[Viikkopalaveri 19.11.2024.txt](https://github.com/user-attachments/files/18141983/Viikkopalaveri.19.11.2024.txt)### `Luokkakaavio`
+### `Luokkakaavio`
 ![tietokanta_kuva,](https://github.com/user-attachments/assets/e48e05b7-8a1e-419e-8163-9faeefbe1919)
 
 
