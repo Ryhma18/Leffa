@@ -25,7 +25,7 @@ body.dark {
   justify-content: space-around;
   align-items: center;
   font-family: "Helvetica";
-  font-weight: 400;
+  font-weight: 100;
   font-size: 14px;
   padding: 0;
   transition: background-color 0.3s, color 0.3s;
@@ -40,7 +40,7 @@ body.dark .horizontal-menu-1 {
 
 .horizontal-menu-1 button {
   flex: 1;
-  width: 300px;
+  width: 260px;
   background: #FDCA00; /* Yellow background */
   color: #232323;
   border: 2px solid #232323; /* Black border for each button */
@@ -215,4 +215,65 @@ body.dark .search-1:focus {
 /* Dark mode specific adjustments for clock */
 body.dark .clock2 {
   color: #FFD700; /* Yellow color for text in dark mode */
+}
+
+/* Hamburger Icon */
+.hamburger-menu {
+  display: none; /* Hidden by default */
+  flex-direction: column;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.hamburger-menu .bar {
+  width: 25px;
+  height: 3px;
+  background-color: #232323;
+  margin: 4px 0;
+  transition: background-color 0.3s;
+}
+
+/* Dark mode for hamburger bars */
+body.dark .hamburger-menu .bar {
+  background-color: #fff; /* White color for bars in dark mode */
+}
+
+/* Mobile menu styles */
+@media (max-width: 1910px) {
+  .hamburger-menu {
+    display: flex;
+  }
+
+  .horizontal-menu-1 {
+    flex-direction: column;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+  }
+
+  .horizontal-menu-1.open {
+    max-height: 500px; /* Adjust as needed */
+  }
+
+  .horizontal-menu-1 button {
+    font-size: 12px;
+    padding: 8px;
+    margin: 5px 0;
+    width: 100%;
+  }
+}
+
+/* Dark mode for mobile menu */
+body.dark .horizontal-menu-1.open {
+  background: #444; /* Dark background when the menu is open */
+}
+
+body.dark .horizontal-menu-1 button {
+  background: #555; /* Darker background for mobile buttons */
+  color: #fff;
+  border-color: #666;
+}
+
+body.dark .horizontal-menu-1 button:hover {
+  background-color: #666; /* Even darker hover effect for mobile */
 }
