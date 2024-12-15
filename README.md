@@ -12,6 +12,11 @@ https://documenter.getpostman.com/view/34234158/2sAYHzFhRh
 
 
 
+### `Työajan seuranta`
+[Työajan seuranta.xlsx](https://github.com/user-attachments/files/18142160/Tyoajan.seuranta.xlsx)
+
+
+
 
 Viikkopalaveri 12.11.2024
 
