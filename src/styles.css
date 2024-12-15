@@ -10,8 +10,8 @@ body {
 
 /* Dark mode styles for the body */
 body.dark {
-  background-color: #121212; /* Dark background */
-  color: #fff; /* Text color white in dark mode */
+  background-color: #000; /* Black background */
+  color: #FFD700; /* Yellow text */
 }
 
 /* General styles for navigation menu */
@@ -35,7 +35,7 @@ body.dark {
 /* Dark mode for horizontal menu */
 body.dark .horizontal-menu-1 {
   background: #333; /* Dark background */
-  border-color: #fff; /* White border */
+  border-color: #FFD700; /* Yellow border */
 }
 
 .horizontal-menu-1 button {
@@ -55,8 +55,8 @@ body.dark .horizontal-menu-1 {
 /* Dark mode for buttons */
 body.dark .horizontal-menu-1 button {
   background: #444; /* Dark background for buttons */
-  color: #fff; /* White text */
-  border-color: #fff; /* White border */
+  color: #FFD700; /* Yellow text */
+  border-color: #FFD700; /* Yellow border */
 }
 
 .horizontal-menu-1 button:hover {
@@ -88,24 +88,27 @@ body.dark .showtime-card {
   border-color: #444; /* Darker border */
 }
 
-/* Dark mode for h2 and h3 text on cards */
+/* Dark mode for h2, h3 and p text on cards */
 body.dark .movie-card h2,
 body.dark .review-card h2,
 body.dark .showtime-card h2,
 body.dark .movie-card h3,
 body.dark .review-card h3,
-body.dark .showtime-card h3 {
-  color: #fff; /* White text color for h2 and h3 inside cards */
+body.dark .showtime-card h3,
+body.dark .movie-card p,
+body.dark .review-card p,
+body.dark .showtime-card p {
+  color: #FFD700; /* Yellow text color for all h2, h3, p inside cards */
 }
 
 /* Elokuvien korttien h3-tekstit mustaksi tummassa tilassa */
 body.dark .movie-card h3 {
-  color: #000; /* Black text for h3 inside movie cards */
+  color: #FFD700; /* Yellow text for h3 inside movie cards */
 }
 
 /* Elokuvien korttien p-tekstit mustaksi tummassa tilassa */
 body.dark .movie-card p {
-  color: #000; /* Black text for p inside movie cards */
+  color: #FFD700; /* Yellow text for p inside movie cards */
 }
 
 /* Search styles */
@@ -133,13 +136,13 @@ body.dark .movie-card p {
 /* Dark mode for search bar */
 body.dark .search-1 {
   background-color: #444; /* Dark background */
-  color: #fff; /* White text */
-  border-color: #666; /* Lighter border */
+  color: #FFD700; /* Yellow text */
+  border-color: #FFD700; /* Yellow border */
 }
 
 /* Dark mode search focus */
 body.dark .search-1:focus {
-  border-color: #007BFF;
+  border-color: #FFD700; /* Yellow focus border */
   outline: none; /* Remove default outline on focus */
 }
 
@@ -211,5 +214,5 @@ body.dark .search-1:focus {
 
 /* Dark mode specific adjustments for clock */
 body.dark .clock2 {
-  color: #ccc; /* Light color for text in dark mode */
+  color: #FFD700; /* Yellow color for text in dark mode */
 }
