@@ -9,7 +9,6 @@ const Review = () => {
     elokuva:'',
     pisteet:'',
     kuvaus:'',
-    luomispäivä:'',
     käyttäjänimi:''
   })
 
@@ -29,7 +28,6 @@ const Review = () => {
         elokuva:'',
         pisteet:'',
         kuvaus:'',
-        luomispäivä:'',
         käyttäjänimi:''
       })
     }catch(error){
@@ -65,13 +63,6 @@ const Review = () => {
                 onChange={handleInput} 
               />
             </div>
-          </div>
-          <div className="form-group">
-            <label htmlFor="birthDate">Luomispäivä</label>
-            <input type="date" id="luomispäivä" name="luomispäivä"required 
-              value={post.luomispäivä}
-              onChange={handleInput} 
-            />
           </div>
           <div className="form-group">
             <label htmlFor="username">Käyttäjänimi</label>

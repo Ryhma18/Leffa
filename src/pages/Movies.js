@@ -8,13 +8,13 @@ const MoviesSearch = () => {
   const [searchYear, setSearchYear] = useState(""); // Julkaisuvuosi
   const [selectedGenre, setSelectedGenre] = useState(""); // Genre
   const [selectedActor, setSelectedActor] = useState(""); // Näyttelijän nimi
-  const [actorId, setActorId] = useState(null); // Näyttelijän ID
   const [genres, setGenres] = useState([]); // Genret listalle
   const [sortByPopularity, setSortByPopularity] = useState(false); // Suosiojärjestys
-  const [favoriteMovies, setFavoriteMovies] = useState([]); // Suosikkielokuvat
+  const [suosikit, setSuosikit] = useState([]); // Suosikkielokuvat
+  const [elokuva, setElokuva] = useState([]);
   const apiKey = "23c2cd5829a1d7db4e98fee32fc45565"; // API-avain
 
-  // Hae genret, kun komponentti ladataan
+  
   useEffect(() => {
     const fetchGenres = async () => {
       try {
@@ -28,75 +28,173 @@ const MoviesSearch = () => {
     fetchGenres();
   }, []);
 
-  // Hae näyttelijän ID hänen nimellään
+  
   useEffect(() => {
-    const fetchActorId = async () => {
-      if (!selectedActor.trim()) {
-        setActorId(null);
-        return;
-      }
-      try {
-        const url = `https://api.themoviedb.org/3/search/person?api_key=${apiKey}&language=fi-FI&query=${encodeURIComponent(selectedActor)}`;
-        const response = await axios.get(url);
-        const actor = response.data.results[0]; // Käytetään ensimmäistä osumaa
-        setActorId(actor ? actor.id : null);
-      } catch (error) {
-        console.error("Virhe haettaessa näyttelijää:", error);
-        setActorId(null);
-      }
-    };
-    fetchActorId();
-  }, [selectedActor]);
+    const storedSuosikit = localStorage.getItem("suosikit");
+    if (storedSuosikit) {
+      setSuosikit(JSON.parse(storedSuosikit));
+    }
+  }, []);
 
-  // Hae elokuvia hakukriteerien perusteella
+  
+  useEffect(() => {
+    localStorage.setItem("suosikit", JSON.stringify(suosikit));
+  }, [suosikit]);
+
+  useEffect(() => {
+    const storedelokuva = localStorage.getItem("elokuva");
+    if (storedelokuva) {
+      setSuosikit(JSON.parse(storedelokuva));
+    }
+  }, []);
+
+  
+  useEffect(() => {
+    localStorage.setItem("elokuva", JSON.stringify(elokuva));
+  }, [elokuva]);
+
+  
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         let url;
 
-        // Jos hakukysely (nimi) on annettu, käytetään search/movie
+        
         if (searchQuery.trim()) {
           url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=fi-FI&query=${encodeURIComponent(searchQuery)}`;
         } else {
-          // Muussa tapauksessa käytetään discover/movie
+          
           url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=fi-FI`;
         }
 
-        // Lisää vuosi, jos on annettu
+        
         if (searchYear.trim()) {
           url += `&primary_release_year=${searchYear}`;
         }
 
-        // Lisää genre, jos on valittu
+        
         if (selectedGenre) {
           url += `&with_genres=${selectedGenre}`;
         }
 
-        // Lisää näyttelijän ID, jos se on asetettu
-        if (actorId) {
-          url += `&with_cast=${actorId}`;
-        }
-
-        // Lisää suosiojärjestys, jos se on valittu
+        
         if (sortByPopularity) {
-          url += `&sort_by=popularity.asc`; // Vähemmän suosituista ensin
+          url += `&sort_by=popularity.asc`; 
         } else {
-          url += `&sort_by=popularity.desc`; // Suosituimmat ensin
+          url += `&sort_by=popularity.desc`;
         }
 
-        console.log("Rakennettu API URL: ", url); // Debuggausta varten
+      
+        if (selectedActor.trim()) {
+          const actorResponse = await axios.get(
+            `https://api.themoviedb.org/3/search/person?api_key=${apiKey}&language=fi-FI&query=${encodeURIComponent(selectedActor)}`
+          );
+
+          if (actorResponse.data.results.length > 0) {
+            const actorId = actorResponse.data.results[0].id;
+            const movieCreditsResponse = await axios.get(
+              `https://api.themoviedb.org/3/person/${actorId}/movie_credits?api_key=${apiKey}&language=fi-FI`
+            );
+            const actorMovies = movieCreditsResponse.data.cast;
+            setResults(actorMovies); 
+            return;
+          } else {
+            setResults([]);
+            return;
+          }
+        }
+
+     
         const response = await axios.get(url);
         setResults(response.data.results || []);
       } catch (error) {
         console.error("Virhe haettaessa elokuvia:", error);
       }
     };
-    fetchMovies();
-  }, [searchQuery, searchYear, selectedGenre, actorId, sortByPopularity]);
 
-  // Funktio elokuvan lisäämiseksi suosikkeihin
-  const addToFavorites = async (movieId) => {
-    // Funktio pysyy ennallaan
+    fetchMovies();
+  }, [searchQuery, searchYear, selectedGenre, sortByPopularity, selectedActor]);
+
+ 
+  const addToSuosikit = async (movie) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:3001/suosikit",
+        {
+          movie_id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_path,
+          release_date: movie.release_date,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 201) {
+        setSuosikit([...suosikit, movie]);
+      } else {
+        console.log("Elokuva on jo suosikeissa");
+      }
+    } catch (error) {
+      console.error("Virhe lisättäessä suosikkia:", error);
+    }
+  };
+
+  
+  const removeFromSuosikit = async (movieId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:3001/suosikit/${movieId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSuosikit(suosikit.filter((movie) => movie.id !== movieId));
+    } catch (error) {
+      console.error("Virhe poistettaessa suosikkia:", error);
+    }
+  };
+
+  
+
+
+  const addTogroup = async (movie) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:3001/elokuva",
+        {
+          movie_id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_path,
+          release_date: movie.release_date,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 201) {
+        setElokuva([...elokuva, movie]);
+      } else {
+        console.log("Elokuva on jo ryhmässä");
+      }
+    } catch (error) {
+      console.error("Virhe lisättäessä elokuvaa:", error);
+    }
+  };
+
+
+  const removeFromgroup = async (movieId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:3001/elokuva/${movieId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setElokuva(elokuva.filter((movie) => movie.id !== movieId));
+    } catch (error) {
+      console.error("Virhe poistettaessa elokuvaa:", error);
+    }
   };
 
   return (
@@ -106,28 +204,28 @@ const MoviesSearch = () => {
         <input
           type="text"
           className="search-1"
-          placeholder="Hae elokuvia nimellä..."
+          placeholder="Hae elokuvia nimellä... "
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)} // Elokuvan nimen muutos
+          onChange={(e) => setSearchQuery(e.target.value)} 
         />
         <input
           type="number"
           className="search-year"
           placeholder="Julkaisuvuosi (esim. 2020)..."
           value={searchYear}
-          onChange={(e) => setSearchYear(e.target.value)} // Vuoden muutos
+          onChange={(e) => setSearchYear(e.target.value)} 
         />
         <input
           type="text"
           className="search-actor"
           placeholder="Hae näyttelijän nimellä..."
           value={selectedActor}
-          onChange={(e) => setSelectedActor(e.target.value)} // Näyttelijän nimen muutos
+          onChange={(e) => setSelectedActor(e.target.value)} 
         />
         <select
           className="search-genre"
           value={selectedGenre}
-          onChange={(e) => setSelectedGenre(e.target.value)} // Genre-valinta
+          onChange={(e) => setSelectedGenre(e.target.value)} 
         >
           <option value="">Valitse genre</option>
           {genres.map((genre) => (
@@ -140,7 +238,7 @@ const MoviesSearch = () => {
           <input
             type="checkbox"
             checked={sortByPopularity}
-            onChange={(e) => setSortByPopularity(e.target.checked)} // Vähemmän suosituista ensin
+            onChange={(e) => setSortByPopularity(e.target.checked)} 
           />
           Ei niin suositut ensin
         </label>
@@ -163,17 +261,75 @@ const MoviesSearch = () => {
                 />
                 <h3>{result.title}</h3>
                 <p>Julkaisuvuosi: {result.release_date?.split("-")[0] || "Ei tietoa"}</p>
-                <p>Suosio: {result.popularity.toFixed(1)}</p>
+                <p>Suosio: {result.popularity?.toFixed(1) || "Ei tietoa"}</p>
                 <button
-                  onClick={() => addToFavorites(result.id)}
-                  disabled={favoriteMovies.includes(result.id)} // Estetään, jos elokuva on jo suosikeissa
+                  onClick={() => addToSuosikit(result)}
+                  disabled={suosikit.some((fav) => fav.id === result.id)} 
                 >
-                  {favoriteMovies.includes(result.id) ? "Jo suosikissa" : "Lisää suosikkeihin"}
+                  {suosikit.some((fav) => fav.id === result.id) ? "Jo suosikissa" : "Lisää suosikkeihin"}
+                </button>
+                <br></br>
+                <br></br>
+                <button
+                  onClick={() => addTogroup(result)}
+                  disabled={elokuva.some((fav) => fav.id === result.id)} 
+                >
+                  {elokuva.some((fav) => fav.id === result.id) ? "lisätty ryhmään" : "Lisää ryhmään"}
                 </button>
               </div>
             ))
           ) : (
             <p>Ei tuloksia hakukriteereillä</p>
+          )}
+        </div>
+      </div>
+
+      {/* Suosikit */}
+      <div className="suosikit-container">
+        <h2>Suosikit</h2>
+        <div className="suosikit-grid">
+          {suosikit.length > 0 ? (
+            suosikit.map((movie) => (
+              <div className="suosikit-card" key={movie.id}>
+                <img
+                  src={
+                    movie.poster_path
+                      ? `https://image.tmdb.org/t/p/w300/${movie.poster_path}`
+                      : "https://via.placeholder.com/300x450?text=Ei+kuvaa"
+                  }
+                  alt={movie.title}
+                />
+                <h3>{movie.title}</h3>
+                <p>Julkaisuvuosi: {movie.release_date?.split("-")[0] || "Ei tietoa"}</p>
+                <button onClick={() => removeFromSuosikit(movie.id)}>Poista suosikeista</button>
+              </div>
+            ))
+          ) : (
+            <p>Ei suosikkeja</p>
+          )}
+        </div>
+      </div>
+      <div className="suosikit-container">
+        <h2>elokuva</h2>
+        <div className="suosikit-grid">
+          {elokuva.length > 0 ? (
+            elokuva.map((movie) => (
+              <div className="suosikit-card" key={movie.id}>
+                <img
+                  src={
+                    movie.poster_path
+                      ? `https://image.tmdb.org/t/p/w300/${movie.poster_path}`
+                      : "https://via.placeholder.com/300x450?text=Ei+kuvaa"
+                  }
+                  alt={movie.title}
+                />
+                <h3>{movie.title}</h3>
+                <p>Julkaisuvuosi: {movie.release_date?.split("-")[0] || "Ei tietoa"}</p>
+                <button onClick={() => removeFromgroup(movie.id)}>Poista ryhmästä</button>
+              </div>
+            ))
+          ) : (
+            <p>Ei elokuvia</p>
           )}
         </div>
       </div>
