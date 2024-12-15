@@ -239,8 +239,8 @@ app.post('/create/review', async (req, res) => {
 
     try {
         const result = await pool.query(
-            'INSERT INTO arvostelu (pisteet, elokuva, kuvaus, käyttäjänimi, luomispäivä) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [pisteet, elokuva, kuvaus, käyttäjänimi, luomispäivä]
+            'INSERT INTO arvostelu (pisteet, elokuva, kuvaus, käyttäjänimi, luomispäivä) VALUES ($1, $2, $3, $4, CURRENT_DATE) RETURNING *',
+            [pisteet, elokuva, kuvaus, käyttäjänimi]
         );
         res.status(200).json(result.rows[0]);
     } catch (error) {
