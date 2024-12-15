@@ -53,7 +53,7 @@ const CreateGroup = () => {
                         required
                     />
                 </div>
-                <button type="submit">Create Group</button>
+                <button type="submit">Luo ryhmä</button>
             </form>
         </div>
     );
